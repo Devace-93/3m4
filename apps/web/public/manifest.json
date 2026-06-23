@@ -1,0 +1,15 @@
+{
+  "name": "3m4 — URL shortener with click analytics",
+  "short_name": "3m4",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

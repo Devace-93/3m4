@@ -1,0 +1,65 @@
+{
+  "_comment": "Single source of truth for plan limits. -1 means unlimited. Consumed by the Python backend (services/*/dbcore/plans.py loads this) and the Qwik frontend (apps/web).",
+  "plans": {
+    "free": {
+      "label": "Free",
+      "price_monthly": 0,
+      "price_annual": 0,
+      "links_per_month": 50,
+      "tracked_clicks_per_month": 1000,
+      "custom_domains": 1,
+      "retention_days": 7,
+      "max_users": 1,
+      "api": "basic"
+    },
+    "pro": {
+      "label": "Pro / Supporter",
+      "price_monthly": 15,
+      "price_annual": 144,
+      "links_per_month": 1000,
+      "tracked_clicks_per_month": 50000,
+      "custom_domains": 3,
+      "retention_days": 365,
+      "max_users": 2,
+      "api": "full"
+    },
+    "team": {
+      "label": "Team",
+      "price_monthly": 59,
+      "price_annual": 564,
+      "links_per_month": 10000,
+      "tracked_clicks_per_month": 250000,
+      "custom_domains": 10,
+      "retention_days": 730,
+      "max_users": 20,
+      "api": "full"
+    },
+    "enterprise": {
+      "label": "Enterprise",
+      "price_monthly": -1,
+      "price_annual": -1,
+      "links_per_month": -1,
+      "tracked_clicks_per_month": -1,
+      "custom_domains": -1,
+      "retention_days": -1,
+      "max_users": -1,
+      "api": "full"
+    },
+    "selfhost": {
+      "label": "Self-host",
+      "price_monthly": 0,
+      "price_annual": 0,
+      "links_per_month": -1,
+      "tracked_clicks_per_month": -1,
+      "custom_domains": -1,
+      "retention_days": -1,
+      "max_users": -1,
+      "api": "full"
+    }
+  },
+  "entitlement_to_plan": {
+    "team": "team",
+    "pro": "pro"
+  },
+  "entitlement_priority": ["team", "pro"]
+}

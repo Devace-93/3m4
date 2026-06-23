@@ -1,0 +1,13 @@
+{
+  "_comment": "Reserved slugs may never be used as short codes or custom slugs. Enforced at code generation AND on custom-slug creation. 'special_redirects' are reserved slugs that themselves perform a redirect (served by the redirect service).",
+  "reserved": [
+    "resume", "blog", "info", "projects", "sponsors",
+    "api", "app", "admin", "login", "signup", "logout",
+    "dashboard", "settings", "billing", "account", "pricing",
+    "static", "assets", "build", "health", "healthz",
+    "robots.txt", "favicon.ico", "sitemap.xml", "_", "qr"
+  ],
+  "special_redirects": {
+    "resume": { "url": "https://enrique-magallon.com", "status": 302 }
+  }
+}

@@ -1,0 +1,46 @@
+# 3m4 reverse proxy.
+# Dev: single host on :8080. Prod: replace `:8080` with `3m4.net` and add the
+# `app.3m4.net` block; Caddy auto-issues TLS. On-demand TLS (for customer custom
+# domains) is wired but commented until Phase 4.
+
+{
+	# email you@example.com          # uncomment in prod for Let's Encrypt
+	# On-demand TLS for customer custom domains (Phase 4):
+	# on_demand_tls {
+	# 	ask http://api:5000/api/domains/verify-tls
+	# }
+}
+
+:8080 {
+	# --- API ---
+	handle /api/* {
+		reverse_proxy api:5000
+	}
+
+	# --- Marketing + dashboard (Qwik SSR) ---
+	# Named content paths and app assets go to the web app.
+	@web {
+		path / /info /info/* /blog /blog/* /projects /projects/* /sponsors /sponsors/*
+		path /login /signup /logout /dashboard /dashboard/* /settings /settings/*
+		path /build/* /assets/* /favicon.ico /robots.txt /sitemap.xml /manifest.json
+	}
+	handle @web {
+		reverse_proxy web:3000
+	}
+
+	# --- Everything else on the apex is a short code (or special redirect) ---
+	handle {
+		reverse_proxy redirect:5001
+	}
+}
+
+# ── Production example (uncomment, set your domain) ───────────────────────────
+# 3m4.net {
+# 	handle /api/* { reverse_proxy api:5000 }
+# 	@web { path / /info* /blog* /projects* /sponsors* /build/* /assets/* /favicon.ico /robots.txt }
+# 	handle @web { reverse_proxy web:3000 }
+# 	handle { reverse_proxy redirect:5001 }
+# }
+# app.3m4.net {
+# 	reverse_proxy web:3000
+# }

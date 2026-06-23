@@ -1,0 +1,22 @@
+name: 3m4
+
+# Self-host overlay: NO billing (RevenueCat), NO beat-driven billing reconcile.
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.selfhost.yml up -d
+#
+# Set BILLING_ENABLED=false in .env. The api service will not register the
+# billing blueprint, the frontend hides paywalls, and plan limits come from
+# config (default: selfhost = unlimited).
+
+services:
+  api:
+    environment:
+      BILLING_ENABLED: "false"
+
+  web:
+    environment:
+      VITE_BILLING_ENABLED: "false"
+
+  # The billing reconcile beat job is unnecessary without RevenueCat.
+  beat:
+    profiles: ["disabled"]

@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / Qwik
+node_modules/
+dist/
+server/
+.qwik/
+tmp/
+.vite/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Data / build
+*.log
+*.sqlite3
+/data/
+geoip/*.mmdb
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
