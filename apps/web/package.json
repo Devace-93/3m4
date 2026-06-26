@@ -19,6 +19,7 @@
     "qwik": "qwik"
   },
   "dependencies": {
+    "@revenuecat/purchases-js": "^1.46.0",
     "posthog-js": "^1.205.0"
   },
   "devDependencies": {

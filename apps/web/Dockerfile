@@ -18,8 +18,23 @@ COPY apps/web ./apps/web
 
 WORKDIR /repo/apps/web
 RUN bun install --frozen-lockfile || bun install
-# Build-time VITE_* vars can be injected here for hosted builds, e.g.:
-#   ARG VITE_API_URL; ENV VITE_API_URL=$VITE_API_URL
+
+# Build-time public config. Vite inlines VITE_* at build time, so these must be
+# present during `bun run build` (passed via compose build.args from .env). All
+# optional — the app degrades gracefully when unset: PostHog no-ops, and the
+# billing page shows a "not configured" notice instead of launching checkout.
+ARG VITE_API_URL=/api
+ARG VITE_SHORT_DOMAIN
+ARG VITE_POSTHOG_KEY
+ARG VITE_POSTHOG_HOST=https://us.i.posthog.com
+ARG VITE_REVENUECAT_PUBLIC_KEY
+ARG VITE_BILLING_ENABLED=true
+ENV VITE_API_URL=$VITE_API_URL \
+    VITE_SHORT_DOMAIN=$VITE_SHORT_DOMAIN \
+    VITE_POSTHOG_KEY=$VITE_POSTHOG_KEY \
+    VITE_POSTHOG_HOST=$VITE_POSTHOG_HOST \
+    VITE_REVENUECAT_PUBLIC_KEY=$VITE_REVENUECAT_PUBLIC_KEY \
+    VITE_BILLING_ENABLED=$VITE_BILLING_ENABLED
 RUN bun run build
 
 # ─── Runtime stage ────────────────────────────────────────────────────────────

@@ -1,8 +1,10 @@
 # 3m4 — developer convenience wrapper around docker compose.
 # All compose files live in ./deploy.
 
-COMPOSE      := docker compose -f deploy/docker-compose.yml
-COMPOSE_SH   := docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.selfhost.yml
+# --env-file makes the repo-root .env drive build-arg interpolation (VITE_* are
+# inlined into the web bundle at build time), not just runtime container env.
+COMPOSE      := docker compose --env-file .env -f deploy/docker-compose.yml
+COMPOSE_SH   := docker compose --env-file .env -f deploy/docker-compose.yml -f deploy/docker-compose.selfhost.yml
 
 .PHONY: help up up-selfhost down build rebuild logs ps seed migrate shell-api shell-db clean
 

@@ -31,3 +31,6 @@ geoip/*.mmdb
 .DS_Store
 .idea/
 .vscode/
+
+# Playwright MCP scratch (browser snapshots/console logs)
+.playwright-mcp/

@@ -15,6 +15,7 @@ export default component$(() => {
     plan: "free",
     accountId: "",
     notice: "",
+    busy: false,
   });
 
   // eslint-disable-next-line qwik/no-use-visible-task
@@ -29,26 +30,84 @@ export default component$(() => {
       .catch(() => {});
   });
 
-  const upgrade = $((plan: "pro" | "team") => {
+  const upgrade = $(async (plan: "pro" | "team") => {
+    if (state.busy) return;
     capture("checkout_started", {
       plan,
       period: state.annual ? "annual" : "monthly",
     });
-    // TODO(billing): launch RevenueCat Web SDK checkout here.
-    //   import Purchases from "@revenuecat/purchases-js";
-    //   const purchases = Purchases.configure(
-    //     import.meta.env.VITE_REVENUECAT_PUBLIC_KEY,
-    //     state.accountId,            // app_user_id MUST be the account id
-    //   );
-    //   const offerings = await purchases.getOfferings();
-    //   const pkg = offerings.all[plan].availablePackages.find(
-    //     (p) => p.packageType === (state.annual ? "ANNUAL" : "MONTHLY"),
-    //   );
-    //   await purchases.purchase({ rcPackage: pkg });
-    //   // Entitlement granted ("pro" | "team"); backend webhook flips accounts.plan.
-    state.notice = `Checkout for the ${PLANS[plan].label} (${
-      state.annual ? "annual" : "monthly"
-    }) plan is not wired up yet. RevenueCat integration is a TODO.`;
+
+    const apiKey = import.meta.env.VITE_REVENUECAT_PUBLIC_KEY;
+    if (!apiKey) {
+      state.notice =
+        "Billing isn't configured yet (missing VITE_REVENUECAT_PUBLIC_KEY). " +
+        "Add your RevenueCat Web Billing public key to .env and rebuild the web image.";
+      return;
+    }
+
+    // RevenueCat's app_user_id MUST be our account id.
+    if (!state.accountId) {
+      try {
+        const me = await api.me();
+        state.accountId = me.account.id;
+      } catch {
+        state.notice = "Please sign in again to upgrade.";
+        return;
+      }
+    }
+
+    state.busy = true;
+    state.notice = "Opening secure checkout…";
+    try {
+      const { Purchases } = await import("@revenuecat/purchases-js");
+
+      // Configure once per app_user_id; reuse the shared instance afterwards.
+      let purchases!: InstanceType<typeof Purchases>;
+      try {
+        purchases = Purchases.getSharedInstance();
+      } catch {
+        purchases = Purchases.configure({ apiKey, appUserId: state.accountId });
+      }
+
+      const offerings = await purchases.getOfferings();
+      // The offering identifier matches the plan id ("pro" | "team").
+      const offering = offerings.all?.[plan] ?? offerings.current;
+      if (!offering) throw new Error(`No RevenueCat offering found for "${plan}".`);
+
+      const pkg = state.annual ? offering.annual : offering.monthly;
+      if (!pkg) {
+        throw new Error(
+          `No ${state.annual ? "annual" : "monthly"} package in the "${plan}" offering.`,
+        );
+      }
+
+      // Opens RevenueCat's hosted checkout (Stripe under the hood). Resolves on success.
+      await purchases.purchase({ rcPackage: pkg });
+
+      // Entitlement is granted immediately; our backend webhook flips
+      // accounts.plan asynchronously, so poll /auth/me until it reflects.
+      state.notice = "Payment complete — activating your plan…";
+      for (let i = 0; i < 12; i++) {
+        const me = await api.me();
+        if (me.account.plan === plan) {
+          state.plan = plan;
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 1500));
+      }
+      state.notice =
+        state.plan === plan
+          ? `You're now on the ${PLANS[plan].label} plan! 🎉`
+          : "Payment received — your plan will update momentarily.";
+    } catch (err: any) {
+      const msg = String(err?.message ?? err ?? "");
+      state.notice =
+        /cancel/i.test(msg) || err?.errorCode === "UserCancelledError"
+          ? "Checkout cancelled."
+          : `Checkout failed: ${msg || "unknown error"}`;
+    } finally {
+      state.busy = false;
+    }
   });
 
   if (!BILLING_ENABLED) {
@@ -143,10 +202,14 @@ export default component$(() => {
               <button
                 type="button"
                 class={current ? "btn-secondary mt-6" : "btn-primary mt-6"}
-                disabled={current}
+                disabled={current || state.busy}
                 onClick$={() => upgrade(key)}
               >
-                {current ? "Current plan" : `Upgrade to ${plan.label.split(" ")[0]}`}
+                {current
+                  ? "Current plan"
+                  : state.busy
+                    ? "Processing…"
+                    : `Upgrade to ${plan.label.split(" ")[0]}`}
               </button>
             </div>
           );
