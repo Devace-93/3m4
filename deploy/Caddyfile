@@ -18,12 +18,14 @@
 	}
 
 	# --- Marketing + dashboard (Qwik SSR) ---
-	# Named content paths and app assets go to the web app.
-	@web {
-		path / /info /info/* /blog /blog/* /projects /projects/* /sponsors /sponsors/*
-		path /login /signup /logout /dashboard /dashboard/* /settings /settings/*
-		path /build/* /assets/* /favicon.ico /robots.txt /sitemap.xml /manifest.json
-	}
+	# Named content paths and app assets go to the web app. Each route lists both
+	# the bare path and a `/*` variant so Qwik City's trailing-slash normalization
+	# (e.g. /signup -> /signup/) still matches and does not fall through to the
+	# short-code catch-all below. Single `path` matcher = OR across all args.
+	# `*q-data.json` and the service worker are Qwik City SPA-navigation/runtime
+	# files requested at arbitrary depths; route them to web so client-side nav
+	# works (otherwise it 404s and silently degrades to full page loads).
+	@web path / /info /info/* /blog /blog/* /projects /projects/* /sponsors /sponsors/* /login /login/* /signup /signup/* /logout /logout/* /dashboard /dashboard/* /settings /settings/* /build/* /assets/* /favicon.ico /favicon.svg /robots.txt /sitemap.xml /manifest.json /service-worker.js *q-data.json
 	handle @web {
 		reverse_proxy web:3000
 	}
