@@ -34,3 +34,6 @@ geoip/*.mmdb
 
 # Playwright MCP scratch (browser snapshots/console logs)
 .playwright-mcp/
+
+# Lavish Editor plan artifacts (local review docs)
+.lavish/
