@@ -8,6 +8,7 @@ the ``webhook_events`` table, so RevenueCat retries are safe.
 """
 from __future__ import annotations
 
+import hmac
 from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify, request
@@ -29,6 +30,7 @@ _RELEVANT = {
     "RENEWAL",
     "PRODUCT_CHANGE",
     "CANCELLATION",
+    "UNCANCELLATION",
     "EXPIRATION",
     "BILLING_ISSUE",
 }
@@ -79,7 +81,7 @@ def webhook():
     expected = config.revenuecat_webhook_token
     # Accept either the raw token or a "Bearer <token>" form.
     presented = auth[len("Bearer ") :] if auth.startswith("Bearer ") else auth
-    if not expected or presented != expected:
+    if not expected or not hmac.compare_digest(presented, expected):
         raise ApiError(401, "unauthorized", "Invalid webhook authorization.")
 
     payload = request.get_json(silent=True) or {}

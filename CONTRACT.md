@@ -18,7 +18,7 @@ Frontend tooling is **Bun** (`bun install`, `bun run build`, `bun run dev`). Ima
 ## Auth
 - JWT bearer. `Authorization: Bearer <access_token>`.
 - Access token TTL ~30 min; refresh token (opaque, stored hashed in DB) ~30 days.
-- Public API uses API keys: header `X-API-Key: sk_live_...` (maps to an account).
+- Public API uses API keys: header `X-API-Key: m4_live_...` (maps to an account).
 
 ## REST API (all under `/api`)
 Responses are JSON. Errors: `{ "error": { "code": "string", "message": "string" } }`.

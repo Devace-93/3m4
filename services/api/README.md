@@ -26,7 +26,7 @@ lives in the repo-root `dbcore/` package and is imported, never re-implemented.
 - **Dashboard:** `Authorization: Bearer <JWT>` (HS256, TTL `ACCESS_TOKEN_TTL_MIN`).
   Refresh tokens are opaque and stored **hashed** (sha256) in `refresh_tokens`.
   Passwords hashed with argon2.
-- **Public API:** `X-API-Key: sk_live_...` (looked up by sha256 hash). The
+- **Public API:** `X-API-Key: m4_live_...` (looked up by sha256 hash). The
   `/links` endpoints accept either method.
 
 ## Endpoints (all under `/api`)

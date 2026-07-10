@@ -1,8 +1,10 @@
 """API keys blueprint: list, create (shown once), revoke.
 
-Keys look like ``sk_live_<random>``. We store only a sha256 hash plus a short,
-non-sensitive ``prefix`` (e.g. ``sk_live_AbCd``) so the dashboard can label keys
-without ever holding the secret.
+Keys look like ``m4_live_<random>``. We store only a sha256 hash plus a short,
+non-sensitive ``prefix`` (e.g. ``m4_live_AbCd``) so the dashboard can label keys
+without ever holding the secret. The prefix is deliberately NOT ``sk_live_``:
+that is Stripe's secret-key convention, and secret scanners (GitHub push
+protection etc.) flag it as a leaked Stripe key.
 """
 from __future__ import annotations
 
@@ -42,11 +44,11 @@ def create_key():
     data = request.get_json(silent=True) or {}
     name = (data.get("name") or "").strip() or "API key"
 
-    # `sk_live_` + 32 url-safe random chars. The prefix keeps the brand tag plus
+    # `m4_live_` + 32 url-safe random chars. The prefix keeps the brand tag plus
     # the first 4 random chars so it is recognisable but not guessable.
     random_part = secrets.token_urlsafe(24)[:32]
-    full_key = f"sk_live_{random_part}"
-    prefix = f"sk_live_{random_part[:4]}"
+    full_key = f"m4_live_{random_part}"
+    prefix = f"m4_live_{random_part[:4]}"
 
     with session_scope() as session:
         api_key = ApiKey(

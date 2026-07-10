@@ -201,7 +201,7 @@ class ApiKey(Base):
     id: Mapped[uuid.UUID] = _pk()
     account_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("accounts.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String(120))
-    prefix: Mapped[str] = mapped_column(String(16), index=True)        # shown in UI, e.g. sk_live_AbCd
+    prefix: Mapped[str] = mapped_column(String(16), index=True)        # shown in UI, e.g. m4_live_AbCd
     key_hash: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
     last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

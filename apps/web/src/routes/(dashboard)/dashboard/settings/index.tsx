@@ -88,7 +88,7 @@ export default component$(() => {
       <p class="mt-1 text-sm text-slate-500">
         Use keys with the public API:{" "}
         <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs">
-          X-API-Key: sk_live_…
+          X-API-Key: m4_live_…
         </code>
       </p>
 
