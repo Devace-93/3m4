@@ -14,6 +14,7 @@ from dbcore.db import session_scope
 from dbcore.models import ClickDailyRollup, Link
 
 from ..auth_utils import require_auth
+from ..flags import require_flag
 from ..serializers import range_to_days, short_url
 
 bp = Blueprint("analytics", __name__)
@@ -21,6 +22,7 @@ bp = Blueprint("analytics", __name__)
 
 @bp.get("/overview")
 @require_auth
+@require_flag("analytics-dashboard", status=404)
 def overview():
     days = range_to_days(request.args.get("range"))
     today = datetime.now(timezone.utc).date()

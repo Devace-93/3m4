@@ -43,6 +43,8 @@ export interface MeResponse {
   plan?: string;
   limits: Limits;
   usage: Usage;
+  /** Resolved feature flags for this account (backend is source of truth). */
+  flags?: Record<string, boolean>;
 }
 
 export interface Link {

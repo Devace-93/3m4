@@ -1,8 +1,15 @@
-import { component$, useStore, useVisibleTask$, $ } from "@builder.io/qwik";
+import {
+  component$,
+  useContext,
+  useStore,
+  useVisibleTask$,
+  $,
+} from "@builder.io/qwik";
 import { type DocumentHead } from "@builder.io/qwik-city";
 import { PLANS, fmtLimit, fmtPrice, fmtRetention } from "../../../../lib/plans";
 import { api } from "../../../../lib/api";
 import { capture } from "../../../../lib/analytics";
+import { FlagsContext } from "../../../../lib/flags";
 
 // Self-host builds set VITE_BILLING_ENABLED=false → hide all purchase UI.
 const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED !== "false";
@@ -10,6 +17,7 @@ const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED !== "false";
 const PAID = ["pro", "team"] as const;
 
 export default component$(() => {
+  const flags = useContext(FlagsContext);
   const state = useStore({
     annual: false,
     plan: "free",
@@ -121,6 +129,23 @@ export default component$(() => {
           <p class="mt-2 text-sm">
             Billing is disabled (<code>VITE_BILLING_ENABLED=false</code>). All
             limits come from your configuration — there are no plans to purchase.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!flags.billing) {
+    return (
+      <div class="mx-auto max-w-2xl px-4 py-16 text-center">
+        <h1 class="text-2xl font-bold text-slate-900">Billing</h1>
+        <div class="mt-6 card p-8 text-slate-600">
+          <p class="font-medium text-slate-800">
+            Paid plans aren't available just yet.
+          </p>
+          <p class="mt-2 text-sm">
+            We're rolling out billing gradually. You keep everything in your
+            current plan — check back soon.
           </p>
         </div>
       </div>

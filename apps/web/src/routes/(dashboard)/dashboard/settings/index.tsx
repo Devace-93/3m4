@@ -1,10 +1,18 @@
-import { component$, useStore, useVisibleTask$, $ } from "@builder.io/qwik";
+import {
+  component$,
+  useContext,
+  useStore,
+  useVisibleTask$,
+  $,
+} from "@builder.io/qwik";
 import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import { api, ApiRequestError } from "../../../../lib/api";
+import { FlagsContext } from "../../../../lib/flags";
 import type { ApiKey } from "../../../../lib/types";
 
 export default component$(() => {
   const nav = useNavigate();
+  const flags = useContext(FlagsContext);
   const state = useStore<{
     keys: ApiKey[];
     loading: boolean;
@@ -81,6 +89,22 @@ export default component$(() => {
       /* ignore */
     }
   });
+
+  if (!flags["public-api"]) {
+    return (
+      <div class="mx-auto max-w-3xl px-4 py-16 text-center">
+        <h1 class="text-2xl font-bold text-slate-900">API keys</h1>
+        <div class="mt-6 card p-8 text-slate-600">
+          <p class="font-medium text-slate-800">
+            The public API isn't available yet.
+          </p>
+          <p class="mt-2 text-sm">
+            We're rolling it out gradually — check back soon.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div class="mx-auto max-w-3xl px-4 py-8">

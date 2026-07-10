@@ -3,6 +3,7 @@ import { Link, useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import { api, ApiRequestError } from "../../../lib/api";
 import { setTokens, isAuthenticated } from "../../../lib/auth";
 import { identify, capture } from "../../../lib/analytics";
+import { FLAG_DEFAULTS } from "../../../lib/flags";
 
 export default component$(() => {
   const nav = useNavigate();
@@ -12,11 +13,22 @@ export default component$(() => {
     accountName: "",
     loading: false,
     error: "",
+    signupsEnabled: FLAG_DEFAULTS.signups,
   });
 
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(() => {
-    if (isAuthenticated()) nav("/dashboard");
+  useVisibleTask$(async () => {
+    if (isAuthenticated()) {
+      nav("/dashboard");
+      return;
+    }
+    // Anonymous flag check: when `signups` is OFF, show the invite-only state.
+    try {
+      const res = await api.flags();
+      state.signupsEnabled = res.flags["signups"] ?? FLAG_DEFAULTS.signups;
+    } catch {
+      /* keep the fail-safe default */
+    }
   });
 
   const submit = $(async () => {
@@ -41,6 +53,25 @@ export default component$(() => {
       state.loading = false;
     }
   });
+
+  if (!state.signupsEnabled) {
+    return (
+      <div class="card p-8 text-center">
+        <h1 class="text-2xl font-bold text-slate-900">
+          🔒 Sign-ups are invite-only right now
+        </h1>
+        <p class="mt-3 text-sm text-slate-500">
+          We're rolling out gradually. Follow along — spots open soon.
+        </p>
+        <p class="mt-6 text-sm text-slate-500">
+          Already have an account?{" "}
+          <Link href="/login" class="font-medium text-primary-600 hover:underline">
+            Log in
+          </Link>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div class="card p-8">

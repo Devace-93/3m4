@@ -1,4 +1,10 @@
-import { component$, useStore, useVisibleTask$, $ } from "@builder.io/qwik";
+import {
+  component$,
+  useContext,
+  useStore,
+  useVisibleTask$,
+  $,
+} from "@builder.io/qwik";
 import {
   Link,
   useLocation,
@@ -7,6 +13,7 @@ import {
 } from "@builder.io/qwik-city";
 import { api, qrUrl, ApiRequestError } from "../../../../../lib/api";
 import { BarChart } from "../../../../../components/bar-chart";
+import { FlagsContext } from "../../../../../lib/flags";
 import type { Analytics, Breakdown, Link as LinkObj } from "../../../../../lib/types";
 
 type Range = "7d" | "30d" | "1y";
@@ -45,6 +52,7 @@ const Breakdowns = component$<{ title: string; rows: Breakdown[] }>(
 export default component$(() => {
   const loc = useLocation();
   const nav = useNavigate();
+  const flags = useContext(FlagsContext);
   const id = loc.params.id;
 
   const state = useStore<{
@@ -67,9 +75,12 @@ export default component$(() => {
     state.loading = true;
     state.error = "";
     try {
+      // Analytics is feature-flagged; the link details themselves are not.
       const [link, analytics] = await Promise.all([
         api.getLink(id),
-        api.analytics(id, state.range),
+        flags["analytics-dashboard"]
+          ? api.analytics(id, state.range)
+          : Promise.resolve(null),
       ]);
       state.link = link;
       state.analytics = analytics;
@@ -147,6 +158,7 @@ export default component$(() => {
             </div>
 
             {/* Range selector */}
+            {flags["analytics-dashboard"] && (
             <div class="inline-flex rounded-lg border border-slate-200 bg-white p-1">
               {(["7d", "30d", "1y"] as Range[]).map((r) => (
                 <button
@@ -164,10 +176,22 @@ export default component$(() => {
                 </button>
               ))}
             </div>
+            )}
           </div>
 
           {/* Summary + chart */}
           <div class="mt-6 grid gap-6 lg:grid-cols-3">
+            {!flags["analytics-dashboard"] ? (
+              <div class="card p-6 text-center lg:col-span-2">
+                <p class="font-medium text-slate-800">
+                  Analytics aren't available yet
+                </p>
+                <p class="mt-1 text-sm text-slate-500">
+                  Clicks are still being tracked — the dashboard is rolling out
+                  gradually.
+                </p>
+              </div>
+            ) : (
             <div class="card p-6 lg:col-span-2">
               <div class="flex items-center gap-8">
                 <div>
@@ -191,6 +215,7 @@ export default component$(() => {
                 <BarChart series={state.analytics?.series ?? []} />
               </div>
             </div>
+            )}
 
             {/* QR */}
             <div class="card flex flex-col items-center p-6">
@@ -215,17 +240,19 @@ export default component$(() => {
           </div>
 
           {/* Breakdowns */}
-          <div class="mt-6 grid gap-6 md:grid-cols-3">
-            <Breakdowns
-              title="By country"
-              rows={state.analytics?.by_country ?? []}
-            />
-            <Breakdowns title="By device" rows={state.analytics?.by_device ?? []} />
-            <Breakdowns
-              title="By referrer"
-              rows={state.analytics?.by_referrer ?? []}
-            />
-          </div>
+          {flags["analytics-dashboard"] && (
+            <div class="mt-6 grid gap-6 md:grid-cols-3">
+              <Breakdowns
+                title="By country"
+                rows={state.analytics?.by_country ?? []}
+              />
+              <Breakdowns title="By device" rows={state.analytics?.by_device ?? []} />
+              <Breakdowns
+                title="By referrer"
+                rows={state.analytics?.by_referrer ?? []}
+              />
+            </div>
+          )}
         </>
       ) : null}
     </div>

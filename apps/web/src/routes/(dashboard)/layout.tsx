@@ -1,23 +1,44 @@
-import { component$, Slot, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import {
+  component$,
+  Slot,
+  useContextProvider,
+  useSignal,
+  useStore,
+  useVisibleTask$,
+} from "@builder.io/qwik";
 import { useNavigate } from "@builder.io/qwik-city";
 import { DashboardNav } from "../../components/dashboard-nav";
 import { Footer } from "../../components/footer";
 import { isAuthenticated } from "../../lib/auth";
+import { api } from "../../lib/api";
+import { FlagsContext, FLAG_DEFAULTS, mergeFlags } from "../../lib/flags";
 
 /**
  * Authed area chrome + route guard. Tokens live only in the browser, so the
  * guard runs client-side: unauthenticated visitors are redirected to /login and
  * protected content is never rendered for them.
+ *
+ * Also resolves feature flags (from /auth/me) BEFORE rendering children, so
+ * gated pages never flicker. On any error we fall back to the shared-registry
+ * defaults — flag resolution must never lock a user out of the dashboard.
  */
 export default component$(() => {
   const nav = useNavigate();
   const ready = useSignal(false);
+  const flags = useStore({ ...FLAG_DEFAULTS });
+  useContextProvider(FlagsContext, flags);
 
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(() => {
+  useVisibleTask$(async () => {
     if (!isAuthenticated()) {
       nav("/login");
       return;
+    }
+    try {
+      const me = await api.me();
+      Object.assign(flags, mergeFlags(me.flags));
+    } catch {
+      /* keep defaults; pages surface their own load errors */
     }
     ready.value = true;
   });

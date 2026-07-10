@@ -21,6 +21,7 @@ from dbcore.plans import all_plans, resolve_plan_from_entitlements
 from dbcore.posthog_client import capture
 
 from ..errors import ApiError
+from ..flags import require_flag
 
 bp = Blueprint("billing", __name__)
 
@@ -39,6 +40,7 @@ _NON_RENEWING = {"CANCELLATION", "EXPIRATION", "BILLING_ISSUE"}
 
 
 @bp.get("/offerings")
+@require_flag("billing", status=404)
 def offerings():
     """Expose purchasable plans for the paywall (free/self-host excluded)."""
     packages = []

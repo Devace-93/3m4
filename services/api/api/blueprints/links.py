@@ -17,6 +17,7 @@ from dbcore.codegen import generate_code, validate_custom_slug
 from dbcore.config import config
 from dbcore.db import session_scope
 from dbcore.models import Account, ClickDailyRollup, Link
+from dbcore.feature_flags import is_enabled
 from dbcore.plans import plan_limits, within_limit
 from dbcore.posthog_client import capture
 from dbcore.usage import get_or_create_counter
@@ -24,6 +25,7 @@ from dbcore.usage import get_or_create_counter
 from ..auth_utils import require_auth_or_api_key
 from ..errors import ApiError
 from ..extensions import limiter, public_api_key_func
+from ..flags import require_flag
 from ..serializers import counts_to_list, range_to_days, serialize_link, short_url
 
 bp = Blueprint("links", __name__)
@@ -90,6 +92,7 @@ def list_links():
 @bp.post("")
 @_public_limit
 @require_auth_or_api_key
+@require_flag("link-creation")
 def create_link():
     data = request.get_json(silent=True) or {}
     destination_url = (data.get("destination_url") or "").strip()
@@ -101,6 +104,8 @@ def create_link():
         raise ApiError(400, "invalid_redirect_type", "redirect_type must be 301 or 302.")
 
     custom_slug = (data.get("custom_slug") or "").strip()
+    if custom_slug and not is_enabled("custom-slugs", str(g.account_id)):
+        raise ApiError(403, "feature_disabled", "'custom-slugs' is not available.")
     title = (data.get("title") or "").strip() or None
     expires_at = _parse_expires_at(data.get("expires_at"))
 
@@ -254,6 +259,7 @@ def link_qr(link_id):
 @bp.get("/<link_id>/analytics")
 @_public_limit
 @require_auth_or_api_key
+@require_flag("analytics-dashboard", status=404)
 def link_analytics(link_id):
     days = range_to_days(request.args.get("range"))
     today = datetime.now(timezone.utc).date()

@@ -146,6 +146,10 @@ export const api = {
 
   me: () => apiFetch<MeResponse>("/auth/me"),
 
+  /* ─── Feature flags (public; anonymous pages like /signup) ──────────── */
+  flags: () =>
+    apiFetch<{ flags: Record<string, boolean> }>("/flags", { auth: false }),
+
   /* ─── Links ──────────────────────────────────────────────────────────── */
   listLinks: (page = 1, per_page = 20, q = "") =>
     apiFetch<Paginated<Link>>(

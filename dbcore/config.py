@@ -42,6 +42,9 @@ class Config:
     # posthog
     posthog_api_key: str = os.getenv("POSTHOG_API_KEY", "")
     posthog_host: str = os.getenv("POSTHOG_HOST", "https://us.i.posthog.com")
+    # Personal API key enables local evaluation of feature flags (no network
+    # in the request path). Without it, flags fall back to registry defaults.
+    posthog_personal_api_key: str = os.getenv("POSTHOG_PERSONAL_API_KEY", "")
 
     # rate limiting
     rate_limit_default: str = os.getenv("RATE_LIMIT_DEFAULT", "120/minute")

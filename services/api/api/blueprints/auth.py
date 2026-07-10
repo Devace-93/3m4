@@ -12,6 +12,7 @@ from flask import Blueprint, g, jsonify, request
 from sqlalchemy import select
 
 from dbcore.db import session_scope
+from dbcore.feature_flags import resolve_all
 from dbcore.models import Account, Membership, RefreshToken, User
 from dbcore.plans import plan_limits
 from dbcore.posthog_client import capture, group_identify
@@ -27,6 +28,7 @@ from ..auth_utils import (
     verify_password,
 )
 from ..errors import ApiError
+from ..flags import require_flag
 from ..serializers import serialize_account, serialize_usage, serialize_user
 
 bp = Blueprint("auth", __name__)
@@ -52,6 +54,7 @@ def _issue_tokens(session, user, account) -> tuple[str, str]:
 
 
 @bp.post("/register")
+@require_flag("signups")
 def register():
     data = request.get_json(silent=True) or {}
     email = (data.get("email") or "").strip().lower()
@@ -168,5 +171,6 @@ def me():
             "plan": account.plan,
             "limits": limits,
             "usage": serialize_usage(counter, limits),
+            "flags": resolve_all(str(account.id)),
         }
     return jsonify(body)

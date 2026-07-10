@@ -145,6 +145,13 @@ def require_api_key(view):
         account_id = _resolve_api_key()
         if account_id is None:
             raise ApiError(401, "unauthorized", "Missing or invalid API key.")
+        # Public API access is feature-flagged as a whole (checked after key
+        # resolution so PostHog can target specific accounts). Dashboard JWT
+        # access to the same endpoints is not affected.
+        from dbcore.feature_flags import is_enabled
+
+        if not is_enabled("public-api", str(account_id)):
+            raise ApiError(403, "feature_disabled", "'public-api' is not available.")
         g.user_id = None
         g.account_id = account_id
         g.auth_method = "api_key"

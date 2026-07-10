@@ -1,0 +1,35 @@
+{
+  "_comment": "Single source of truth for feature flags. Consumed by the Python backend (dbcore/feature_flags.py) and the Qwik frontend (apps/web). `default` is the fail-safe used when PostHog is unreachable or the flag is undefined there; self-host (no POSTHOG_API_KEY) ignores defaults and enables everything. Keys must match the PostHog feature flag keys exactly.",
+  "flags": {
+    "signups": {
+      "description": "New account registration. Login is NEVER gated.",
+      "default": true,
+      "created": "2026-07-10"
+    },
+    "link-creation": {
+      "description": "Creating new short links. Existing links always redirect.",
+      "default": true,
+      "created": "2026-07-10"
+    },
+    "custom-slugs": {
+      "description": "Vanity slugs on link creation (paid feature).",
+      "default": true,
+      "created": "2026-07-10"
+    },
+    "analytics-dashboard": {
+      "description": "Per-link click analytics views.",
+      "default": true,
+      "created": "2026-07-10"
+    },
+    "public-api": {
+      "description": "Public API access via X-API-Key.",
+      "default": true,
+      "created": "2026-07-10"
+    },
+    "billing": {
+      "description": "Paywall, checkout and /billing/offerings. The RevenueCat webhook is NEVER gated.",
+      "default": true,
+      "created": "2026-07-10"
+    }
+  }
+}

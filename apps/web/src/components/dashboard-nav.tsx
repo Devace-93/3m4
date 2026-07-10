@@ -1,19 +1,29 @@
-import { component$, $ } from "@builder.io/qwik";
+import { component$, $, useContext } from "@builder.io/qwik";
 import { Link, useLocation, useNavigate } from "@builder.io/qwik-city";
 import { Logo } from "./logo";
 import { getRefreshToken, clearTokens } from "../lib/auth";
 import { api } from "../lib/api";
 import { resetAnalytics } from "../lib/analytics";
+import { FlagsContext, type FlagKey } from "../lib/flags";
 
-const items = [
+const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED !== "false";
+
+const items: { href: string; label: string; flag?: FlagKey }[] = [
   { href: "/dashboard", label: "Links" },
-  { href: "/dashboard/settings", label: "API keys" },
-  { href: "/dashboard/billing", label: "Billing" },
+  { href: "/dashboard/settings", label: "API keys", flag: "public-api" },
+  { href: "/dashboard/billing", label: "Billing", flag: "billing" },
 ];
 
 export const DashboardNav = component$(() => {
   const loc = useLocation();
   const nav = useNavigate();
+  const flags = useContext(FlagsContext);
+
+  const visible = items.filter((it) => {
+    if (it.flag && !flags[it.flag]) return false;
+    if (it.href === "/dashboard/billing" && !BILLING_ENABLED) return false;
+    return true;
+  });
 
   const logout = $(async () => {
     const rt = getRefreshToken();
@@ -37,7 +47,7 @@ export const DashboardNav = component$(() => {
         <div class="flex items-center gap-8">
           <Logo href="/dashboard" />
           <div class="hidden items-center gap-1 md:flex">
-            {items.map((it) => {
+            {visible.map((it) => {
               const active =
                 path === it.href ||
                 (it.href === "/dashboard" && path.startsWith("/dashboard/links"));

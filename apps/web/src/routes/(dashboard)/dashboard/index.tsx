@@ -1,12 +1,20 @@
-import { component$, useStore, useVisibleTask$, $ } from "@builder.io/qwik";
+import {
+  component$,
+  useContext,
+  useStore,
+  useVisibleTask$,
+  $,
+} from "@builder.io/qwik";
 import { Link, useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import { api, ApiRequestError } from "../../../lib/api";
 import { capture } from "../../../lib/analytics";
 import { UsageBar } from "../../../components/usage-bar";
+import { FlagsContext } from "../../../lib/flags";
 import type { Link as LinkObj, MeResponse } from "../../../lib/types";
 
 export default component$(() => {
   const nav = useNavigate();
+  const flags = useContext(FlagsContext);
   const state = useStore<{
     links: LinkObj[];
     me: MeResponse | null;
@@ -107,9 +115,11 @@ export default component$(() => {
             </p>
           )}
         </div>
-        <Link href="/dashboard/billing" class="btn-secondary">
-          Upgrade plan
-        </Link>
+        {flags.billing && (
+          <Link href="/dashboard/billing" class="btn-secondary">
+            Upgrade plan
+          </Link>
+        )}
       </div>
 
       {/* Usage */}
@@ -132,7 +142,17 @@ export default component$(() => {
         </div>
       )}
 
-      {/* Create form */}
+      {/* Create form (feature-flagged: link-creation) */}
+      {!flags["link-creation"] ? (
+        <div class="mt-6 card p-6 text-center">
+          <h2 class="text-lg font-semibold text-slate-800">
+            Link creation is temporarily unavailable
+          </h2>
+          <p class="mt-1 text-sm text-slate-500">
+            Your existing short links keep working and redirecting as usual.
+          </p>
+        </div>
+      ) : (
       <div class="mt-6 card p-6">
         <h2 class="text-lg font-semibold text-slate-900">Create link</h2>
         {form.error && (
@@ -171,19 +191,21 @@ export default component$(() => {
               onInput$={(_, el) => (form.destination_url = el.value)}
             />
           </div>
-          <div>
-            <label class="label" for="slug">
-              Custom slug <span class="text-slate-400">(optional, paid)</span>
-            </label>
-            <input
-              id="slug"
-              type="text"
-              placeholder="my-link"
-              class="input"
-              value={form.custom_slug}
-              onInput$={(_, el) => (form.custom_slug = el.value)}
-            />
-          </div>
+          {flags["custom-slugs"] && (
+            <div>
+              <label class="label" for="slug">
+                Custom slug <span class="text-slate-400">(optional, paid)</span>
+              </label>
+              <input
+                id="slug"
+                type="text"
+                placeholder="my-link"
+                class="input"
+                value={form.custom_slug}
+                onInput$={(_, el) => (form.custom_slug = el.value)}
+              />
+            </div>
+          )}
           <div>
             <label class="label" for="title">
               Title <span class="text-slate-400">(optional)</span>
@@ -223,6 +245,7 @@ export default component$(() => {
           </div>
         </form>
       </div>
+      )}
 
       {/* Links table */}
       <div class="mt-6 card overflow-hidden">
@@ -287,12 +310,14 @@ export default component$(() => {
                       {new Date(l.created_at).toLocaleDateString()}
                     </td>
                     <td class="px-4 py-3 text-right">
-                      <Link
-                        href={`/dashboard/links/${l.id}`}
-                        class="text-xs font-medium text-slate-500 hover:text-primary-600"
-                      >
-                        Analytics →
-                      </Link>
+                      {flags["analytics-dashboard"] && (
+                        <Link
+                          href={`/dashboard/links/${l.id}`}
+                          class="text-xs font-medium text-slate-500 hover:text-primary-600"
+                        >
+                          Analytics →
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 ))}
