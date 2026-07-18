@@ -1,6 +1,12 @@
 {
-  "_comment": "Single source of truth for feature flags. Consumed by the Python backend (dbcore/feature_flags.py) and the Qwik frontend (apps/web). `default` is the fail-safe used when PostHog is unreachable or the flag is undefined there; self-host (no POSTHOG_API_KEY) ignores defaults and enables everything. Keys must match the PostHog feature flag keys exactly.",
+  "_comment": "Single source of truth for feature flags. Consumed by the Python backend (dbcore/feature_flags.py) and the Qwik frontend (apps/web). `default` is the fail-safe used when PostHog is unreachable or the flag is undefined there; self-host (no POSTHOG_API_KEY) enables everything unless a flag sets `self_host` explicitly (used by inverse-polarity flags like site-building, where ON hides the product). Keys must match the PostHog feature flag keys exactly.",
   "flags": {
+    "site-building": {
+      "description": "Site-wide building/under-construction curtain. ON = whole web UI shows the building page. Redirect service and API are unaffected. Inverse polarity: OFF is normal operation.",
+      "default": false,
+      "self_host": false,
+      "created": "2026-07-10"
+    },
     "signups": {
       "description": "New account registration. Login is NEVER gated.",
       "default": true,

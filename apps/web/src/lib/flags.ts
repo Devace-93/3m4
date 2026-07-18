@@ -10,6 +10,7 @@ import { createContextId } from "@builder.io/qwik";
 import registry from "../../../../packages/shared/feature_flags.json";
 
 export type FlagKey =
+  | "site-building"
   | "signups"
   | "link-creation"
   | "custom-slugs"

@@ -56,7 +56,10 @@ def is_enabled(key: str, distinct_id: str = "anonymous") -> bool:
         # Unknown flag: fail closed so a typo can't silently expose a feature.
         return False
     if not config.posthog_api_key:
-        return True  # self-host: full product, no PostHog dependency
+        # Self-host: full product, no PostHog dependency. Inverse-polarity
+        # flags (e.g. site-building, where ON hides the product) opt out via
+        # an explicit `self_host` value in the registry.
+        return bool(reg[key].get("self_host", True))
     default = bool(reg[key]["default"])
     client = _get_client()
     if client is None:
