@@ -28,6 +28,10 @@
 	}
 }
 
+www.3m4.net {
+	redir https://3m4.net{uri} permanent
+}
+
 app.3m4.net {
 	# Dashboard calls the API same-origin (VITE_API_URL=/api).
 	handle /api/* {
