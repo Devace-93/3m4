@@ -29,7 +29,13 @@
 }
 
 app.3m4.net {
-	reverse_proxy web:3000
+	# Dashboard calls the API same-origin (VITE_API_URL=/api).
+	handle /api/* {
+		reverse_proxy api:5000
+	}
+	handle {
+		reverse_proxy web:3000
+	}
 }
 
 # ── Static side apps ──────────────────────────────────────────────────────────
