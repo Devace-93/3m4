@@ -1,0 +1,29 @@
+#cloud-config
+# Paste into "Cloud config" (user data) when creating the Hetzner server.
+# Hardens the box and installs Docker; the SSH key you select at creation
+# is injected for root by Hetzner automatically.
+package_update: true
+package_upgrade: true
+packages:
+  - ufw
+  - fail2ban
+  - unattended-upgrades
+  - git
+
+write_files:
+  - path: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+
+runcmd:
+  - curl -fsSL https://get.docker.com | sh
+  - ufw default deny incoming
+  - ufw default allow outgoing
+  - ufw allow OpenSSH
+  - ufw allow 80/tcp
+  - ufw allow 443/tcp
+  - ufw --force enable
+  - systemctl enable --now fail2ban
+  # Static side apps (info / bubbles / kinegram) get rsynced here later.
+  - mkdir -p /srv/static

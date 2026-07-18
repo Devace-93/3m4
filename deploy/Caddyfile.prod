@@ -1,0 +1,54 @@
+# 3m4 production Caddyfile. Mounted over the dev one by docker-compose.prod.yml.
+# Caddy auto-issues Let's Encrypt certs once DNS points at this box.
+
+{
+	email dev.ace.93.03@gmail.com
+	# On-demand TLS for customer custom domains (Phase 4):
+	# on_demand_tls {
+	# 	ask http://api:5000/api/domains/verify-tls
+	# }
+}
+
+3m4.net {
+	# --- API ---
+	handle /api/* {
+		reverse_proxy api:5000
+	}
+
+	# --- Marketing + dashboard (Qwik SSR) --- same matcher as dev (see Caddyfile
+	# comments there for why each path is listed).
+	@web path / /info /info/* /blog /blog/* /projects /projects/* /sponsors /sponsors/* /login /login/* /signup /signup/* /logout /logout/* /dashboard /dashboard/* /settings /settings/* /build/* /assets/* /favicon.ico /favicon.svg /robots.txt /sitemap.xml /manifest.json /service-worker.js *q-data.json
+	handle @web {
+		reverse_proxy web:3000
+	}
+
+	# --- Everything else on the apex is a short code (or special redirect) ---
+	handle {
+		reverse_proxy redirect:5001
+	}
+}
+
+app.3m4.net {
+	reverse_proxy web:3000
+}
+
+# ── Static side apps ──────────────────────────────────────────────────────────
+# Uncomment per app once its files are rsynced to /srv/static/<app> on the host
+# and the /srv/static volume mount is enabled in docker-compose.prod.yml.
+# DNS: add an A record per subdomain pointing at this server.
+#
+# info.3m4.net {
+# 	root * /srv/static/info
+# 	encode gzip
+# 	file_server
+# }
+# bubbles.3m4.net {
+# 	root * /srv/static/bubbles
+# 	encode gzip
+# 	file_server
+# }
+# kinegram.3m4.net {
+# 	root * /srv/static/kinegram
+# 	encode gzip
+# 	file_server
+# }

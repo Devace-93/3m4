@@ -1,0 +1,14 @@
+# Production overrides. Run from deploy/ with:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+services:
+  caddy:
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Same target path as the dev mount, so compose replaces it with the prod file.
+      - ./Caddyfile.prod:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+      # Static side apps — enable together with the blocks in Caddyfile.prod:
+      # - /srv/static:/srv/static:ro
