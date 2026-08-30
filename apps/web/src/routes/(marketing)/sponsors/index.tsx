@@ -1,13 +1,9 @@
 import { component$ } from "@builder.io/qwik";
 import { Link, type DocumentHead } from "@builder.io/qwik-city";
 
-// Placeholder data — real supporters come from active Pro/Supporter subscriptions.
-const sponsors = [
-  { name: "Acme Labs", tier: "Team", url: "#" },
-  { name: "Jane Builder", tier: "Pro", url: "#" },
-  { name: "Indie Devs Co.", tier: "Pro", url: "#" },
-  { name: "OpenLink Foundation", tier: "Team", url: "#" },
-];
+// Supporters are added here (with their permission) as Pro/Team subscriptions
+// come in. Empty until launch brings the first ones.
+const sponsors: { name: string; tier: string; url: string }[] = [];
 
 export default component$(() => {
   return (
@@ -24,6 +20,19 @@ export default component$(() => {
         </p>
       </div>
 
+      {sponsors.length === 0 && (
+        <div class="mt-12 card p-10 text-center">
+          <p class="font-semibold text-slate-900">
+            Your name could be the first on this page.
+          </p>
+          <p class="mt-1 text-sm text-slate-500">
+            Every Pro / Supporter subscriber gets a spot here and an embeddable
+            badge.
+          </p>
+        </div>
+      )}
+
+      {sponsors.length > 0 && (
       <div class="mt-12 grid gap-4 sm:grid-cols-2">
         {sponsors.map((s) => (
           <a
@@ -50,6 +59,7 @@ export default component$(() => {
           </a>
         ))}
       </div>
+      )}
 
       {/* Badge concept */}
       <div class="mt-12 card p-6">

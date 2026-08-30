@@ -201,9 +201,26 @@ export default component$(() => {
                 type="text"
                 placeholder="my-link"
                 class="input"
+                disabled={state.me ? !state.me.limits.custom_slugs : false}
                 value={form.custom_slug}
                 onInput$={(_, el) => (form.custom_slug = el.value)}
               />
+              {state.me && !state.me.limits.custom_slugs && (
+                <p class="mt-1 text-xs text-slate-400">
+                  Available on paid plans.
+                  {flags.billing && (
+                    <>
+                      {" "}
+                      <Link
+                        href="/dashboard/billing"
+                        class="font-medium text-primary-600 hover:underline"
+                      >
+                        Upgrade
+                      </Link>
+                    </>
+                  )}
+                </p>
+              )}
             </div>
           )}
           <div>

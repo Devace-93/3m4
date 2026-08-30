@@ -131,6 +131,21 @@ def create_link():
                 extra={"which": "links"},
             )
 
+        # ---- Custom slugs are a paid-plan feature --------------------------
+        if custom_slug and not limit.get("custom_slugs", False):
+            capture(
+                str(account.id),
+                "limit_reached",
+                {"which": "custom_slugs", "plan": plan},
+                groups={"account": str(account.id)},
+            )
+            raise ApiError(
+                402,
+                "upgrade_required",
+                "Custom slugs are available on paid plans.",
+                extra={"which": "custom_slugs"},
+            )
+
         # ---- Resolve the short code ----------------------------------------
         if custom_slug:
             ok, err = validate_custom_slug(session, custom_slug)

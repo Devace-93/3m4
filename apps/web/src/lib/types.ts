@@ -16,6 +16,7 @@ export interface Account {
 export interface Limits {
   links_per_month: number;
   tracked_clicks_per_month: number;
+  custom_slugs: boolean;
   custom_domains: number;
   retention_days: number;
   max_users: number;

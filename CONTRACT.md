@@ -32,7 +32,7 @@ Responses are JSON. Errors: `{ "error": { "code": "string", "message": "string" 
 
 ### Links
 - `GET    /links?page=1&per_page=20&q=` → `{items:[Link], page, per_page, total}`
-- `POST   /links` `{destination_url, custom_slug?, redirect_type?(301|302), title?, expires_at?}` → Link (201). 402 if monthly link limit reached (`error.code = "limit_reached"`, `error.which = "links"`).
+- `POST   /links` `{destination_url, custom_slug?, redirect_type?(301|302), title?, expires_at?}` → Link (201). 402 if monthly link limit reached (`error.code = "limit_reached"`, `error.which = "links"`). 402 if `custom_slug` is sent on a plan without it (`error.code = "upgrade_required"`, `error.which = "custom_slugs"`; per-plan boolean `custom_slugs` in plan_limits.json).
 - `GET    /links/:id` → Link
 - `PATCH  /links/:id` `{destination_url?, title?, active?, redirect_type?, expires_at?}` → Link
 - `DELETE /links/:id` → 204

@@ -60,6 +60,7 @@ export const PricingTable = component$<Props>(
                   <strong>{fmtLimit(plan.custom_domains)}</strong> custom domain
                   {plan.custom_domains === 1 ? "" : "s"}
                 </li>
+                {plan.custom_slugs && <li>Custom slugs</li>}
                 <li>{fmtRetention(plan.retention_days)} retention</li>
                 <li>
                   <strong>{fmtLimit(plan.max_users)}</strong> user
