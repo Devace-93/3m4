@@ -52,6 +52,21 @@ app.3m4.net {
 	}
 }
 
+# ── Sibling stacks on the `edge` network ─────────────────────────────────────
+# exp (feature flags): /opt/exp, deployed without its own Caddy. Container
+# names are stable (compose project `exp`, one replica each).
+exp.3m4.net {
+	handle /api/* {
+		reverse_proxy exp-api-1:5000
+	}
+	handle /mcp* {
+		reverse_proxy exp-mcp-1:3333
+	}
+	handle {
+		reverse_proxy exp-web-1:3000
+	}
+}
+
 # ── Static side apps ──────────────────────────────────────────────────────────
 # Uncomment per app once its files are rsynced to /srv/static/<app> on the host
 # and the /srv/static volume mount is enabled in docker-compose.prod.yml.

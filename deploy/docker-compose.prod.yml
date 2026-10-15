@@ -12,3 +12,11 @@ services:
       - caddyconfig:/config
       # Static side apps — enable together with the blocks in Caddyfile.prod:
       # - /srv/static:/srv/static:ro
+    # `edge` is a shared external network (docker network create edge) that
+    # sibling stacks on this box join (exp at /opt/exp) so this Caddy can route
+    # their subdomains by container name. Create it before deploying.
+    networks: [default, edge]
+
+networks:
+  edge:
+    external: true
