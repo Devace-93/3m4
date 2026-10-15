@@ -8,7 +8,14 @@ import {
 import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import { api, ApiRequestError } from "../../../../lib/api";
 import { FlagsContext } from "../../../../lib/flags";
-import type { ApiKey } from "../../../../lib/types";
+import type { ApiKey, ApiKeyRole } from "../../../../lib/types";
+import roleRegistry from "../../../../../../../packages/shared/api_key_roles.json";
+
+const ROLES = roleRegistry.roles as Record<
+  ApiKeyRole,
+  { label: string; description: string; scopes: string[] }
+>;
+const DEFAULT_ROLE = roleRegistry.default_role as ApiKeyRole;
 
 export default component$(() => {
   const nav = useNavigate();
@@ -18,6 +25,7 @@ export default component$(() => {
     loading: boolean;
     error: string;
     newName: string;
+    newRole: ApiKeyRole;
     creating: boolean;
     createdSecret: string; // shown once
     copied: boolean;
@@ -26,6 +34,7 @@ export default component$(() => {
     loading: true,
     error: "",
     newName: "",
+    newRole: DEFAULT_ROLE,
     creating: false,
     createdSecret: "",
     copied: false,
@@ -58,9 +67,10 @@ export default component$(() => {
     state.creating = true;
     state.error = "";
     try {
-      const res = await api.createApiKey(state.newName.trim());
+      const res = await api.createApiKey(state.newName.trim(), state.newRole);
       state.createdSecret = res.key;
       state.newName = "";
+      state.newRole = DEFAULT_ROLE;
       load();
     } catch (e) {
       state.error =
@@ -165,10 +175,31 @@ export default component$(() => {
             onInput$={(_, el) => (state.newName = el.value)}
           />
         </div>
+        <div>
+          <label class="label" for="keyrole">
+            Role
+          </label>
+          <select
+            id="keyrole"
+            class="input"
+            value={state.newRole}
+            onChange$={(_, el) => (state.newRole = el.value as ApiKeyRole)}
+          >
+            {(Object.keys(ROLES) as ApiKeyRole[]).map((r) => (
+              <option key={r} value={r} selected={r === state.newRole}>
+                {ROLES[r].label}
+              </option>
+            ))}
+          </select>
+        </div>
         <button type="submit" class="btn-primary" disabled={state.creating}>
           {state.creating ? "Creating…" : "Create key"}
         </button>
       </form>
+      <p class="mt-2 text-xs text-slate-500">
+        {ROLES[state.newRole].description}{" "}
+        <span class="font-mono">({ROLES[state.newRole].scopes.join(", ")})</span>
+      </p>
 
       {/* List */}
       <div class="mt-6 card overflow-hidden">
@@ -177,11 +208,13 @@ export default component$(() => {
         ) : state.keys.length === 0 ? (
           <div class="p-8 text-center text-sm text-slate-500">No API keys yet.</div>
         ) : (
+          <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
             <thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th class="px-4 py-3">Name</th>
                 <th class="px-4 py-3">Prefix</th>
+                <th class="px-4 py-3">Role</th>
                 <th class="px-4 py-3">Last used</th>
                 <th class="px-4 py-3">Created</th>
                 <th class="px-4 py-3"></th>
@@ -195,6 +228,11 @@ export default component$(() => {
                   </td>
                   <td class="px-4 py-3 font-mono text-xs text-slate-600">
                     {k.prefix}…
+                  </td>
+                  <td class="px-4 py-3">
+                    <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+                      {ROLES[k.role]?.label ?? k.role}
+                    </span>
                   </td>
                   <td class="px-4 py-3 text-slate-500">
                     {k.last_used_at
@@ -217,6 +255,7 @@ export default component$(() => {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

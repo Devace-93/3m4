@@ -9,6 +9,7 @@ import { Link, useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import { api, ApiRequestError } from "../../../lib/api";
 import { capture } from "../../../lib/analytics";
 import { UsageBar } from "../../../components/usage-bar";
+import { EarlyAccessBanner } from "../../../components/early-access-banner";
 import { FlagsContext } from "../../../lib/flags";
 import type { Link as LinkObj, MeResponse } from "../../../lib/types";
 
@@ -111,15 +112,25 @@ export default component$(() => {
           {state.me && (
             <p class="text-sm text-slate-500">
               {state.me.account.name} ·{" "}
-              <span class="capitalize">{state.me.account.plan}</span> plan
+              {flags["early-access"] ? (
+                <span>Early access</span>
+              ) : (
+                <>
+                  <span class="capitalize">{state.me.account.plan}</span> plan
+                </>
+              )}
             </p>
           )}
         </div>
-        {flags.billing && (
+        {flags.billing && !flags["early-access"] && (
           <Link href="/dashboard/billing" class="btn-secondary">
             Upgrade plan
           </Link>
         )}
+      </div>
+
+      <div class="mt-4">
+        <EarlyAccessBanner />
       </div>
 
       {/* Usage */}
@@ -165,7 +176,7 @@ export default component$(() => {
             ]}
           >
             {form.error}{" "}
-            {form.limitReached && (
+            {form.limitReached && !flags["early-access"] && (
               <Link href="/dashboard/billing" class="font-semibold underline">
                 Upgrade your plan
               </Link>
@@ -194,7 +205,10 @@ export default component$(() => {
           {flags["custom-slugs"] && (
             <div>
               <label class="label" for="slug">
-                Custom slug <span class="text-slate-400">(optional, paid)</span>
+                Custom slug{" "}
+                <span class="text-slate-400">
+                  {flags["early-access"] ? "(optional)" : "(optional, paid)"}
+                </span>
               </label>
               <input
                 id="slug"

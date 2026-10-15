@@ -18,6 +18,7 @@ import type {
   Analytics,
   ApiError,
   ApiKey,
+  ApiKeyRole,
   AuthResponse,
   Link,
   MeResponse,
@@ -178,16 +179,20 @@ export const api = {
 
   /* ─── API keys ───────────────────────────────────────────────────────── */
   listApiKeys: () => apiFetch<ApiKey[]>("/apikeys"),
-  createApiKey: (name: string) =>
-    apiFetch<{ id: string; key: string }>("/apikeys", {
+  createApiKey: (name: string, role: ApiKeyRole = "editor") =>
+    apiFetch<{ id: string; key: string; role: ApiKeyRole }>("/apikeys", {
       method: "POST",
-      body: { name },
+      body: { name, role },
     }),
   deleteApiKey: (id: string) =>
     apiFetch<void>(`/apikeys/${id}`, { method: "DELETE" }),
 };
 
-/** Absolute URL to a link's QR PNG (served by the API). */
-export function qrUrl(id: string, size = 512): string {
-  return `${BASE}/links/${id}/qr.png?size=${size}`;
+/**
+ * Absolute URL to a link's QR PNG. Uses the public, unauthenticated route
+ * (`/qr/<short_code>.png`): a browser cannot attach the bearer token to an
+ * `<img src>`, and the QR only encodes the public short URL anyway.
+ */
+export function qrUrl(shortCode: string, size = 512): string {
+  return `${BASE}/qr/${encodeURIComponent(shortCode)}.png?size=${size}`;
 }

@@ -5,7 +5,7 @@ import {
   useVisibleTask$,
   $,
 } from "@builder.io/qwik";
-import { type DocumentHead } from "@builder.io/qwik-city";
+import { Link, type DocumentHead } from "@builder.io/qwik-city";
 import { PLANS, fmtLimit, fmtPrice, fmtRetention } from "../../../../lib/plans";
 import { api } from "../../../../lib/api";
 import { capture } from "../../../../lib/analytics";
@@ -130,6 +130,26 @@ export default component$(() => {
             Billing is disabled (<code>VITE_BILLING_ENABLED=false</code>). All
             limits come from your configuration — there are no plans to purchase.
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (flags["early-access"]) {
+    return (
+      <div class="mx-auto max-w-2xl px-4 py-16 text-center">
+        <h1 class="text-2xl font-bold text-slate-900">Billing</h1>
+        <div class="mt-6 card p-8 text-slate-600">
+          <p class="font-medium text-slate-800">
+            You're in early access: everything is included, free.
+          </p>
+          <p class="mt-2 text-sm">
+            There is nothing to buy yet. Plans and limits will be introduced
+            later, and you'll hear about it before anything changes.
+          </p>
+          <Link href="/blog/what-paid-plans-will-include" class="btn-secondary mt-6">
+            What paid plans will include
+          </Link>
         </div>
       </div>
     );

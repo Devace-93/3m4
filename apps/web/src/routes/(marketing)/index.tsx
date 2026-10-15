@@ -1,10 +1,11 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useContext } from "@builder.io/qwik";
 import { Link, type DocumentHead } from "@builder.io/qwik-city";
+import { FlagsContext } from "../../lib/flags";
 
 const features = [
   {
     title: "Short codes",
-    body: "Random base62 codes on 3m4.net, with custom vanity slugs on paid plans.",
+    body: "Random base62 codes on 3m4.net, or custom vanity slugs like 3m4.net/launch.",
   },
   {
     title: "Custom domains",
@@ -24,11 +25,19 @@ const features = [
   },
   {
     title: "Public API",
-    body: "Create and manage links programmatically with scoped API keys.",
+    body: "Create and manage links programmatically with role-scoped API keys.",
+  },
+  {
+    title: "MCP server for AI agents",
+    body: "Claude Code, Cursor or any MCP host can shorten links and read analytics for you, with roles, confirmations and an audit log.",
   },
 ];
 
+const MCP_SNIPPET = "claude mcp add 3m4 --scope user --env M4_API_KEY=m4_live_… -- npx -y 3m4-mcp";
+
 export default component$(() => {
+  const flags = useContext(FlagsContext);
+  const early = flags["early-access"];
   return (
     <>
       {/* Hero */}
@@ -50,15 +59,26 @@ export default component$(() => {
             <Link href="/signup" class="btn-primary px-6 py-3 text-base">
               Get started free
             </Link>
-            <Link
-              href="/info/pricing"
-              class="btn-secondary px-6 py-3 text-base"
-            >
-              See pricing
-            </Link>
+            {early ? (
+              <Link
+                href="/blog/what-paid-plans-will-include"
+                class="btn-secondary px-6 py-3 text-base"
+              >
+                Why it's free right now
+              </Link>
+            ) : (
+              <Link
+                href="/info/pricing"
+                class="btn-secondary px-6 py-3 text-base"
+              >
+                See pricing
+              </Link>
+            )}
           </div>
-          <p class="mt-4 text-sm text-slate-500">
-            Free plan: 50 links &amp; 1,000 tracked clicks / month. No card required.
+          <p class="mt-4 text-sm text-slate-500" data-testid="hero-plan-note">
+            {early
+              ? "Early access: every account gets full access, free. Plans come later, with notice."
+              : "Free plan: 50 links & 1,000 tracked clicks / month. No card required."}
           </p>
         </div>
       </section>
@@ -78,6 +98,64 @@ export default component$(() => {
         </div>
       </section>
 
+      {/* MCP */}
+      <section class="border-y border-slate-200 bg-slate-50" id="mcp">
+        <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-2 lg:items-center">
+          <div class="min-w-0">
+            <span class="badge bg-primary-100 text-primary-700">New · Model Context Protocol</span>
+            <h2 class="mt-4 text-3xl font-bold text-slate-900">
+              Let your AI agent manage links
+            </h2>
+            <p class="mt-3 text-slate-600">
+              3m4 ships an MCP server. Connect it to Claude Code, Claude Desktop,
+              Cursor or any MCP host and ask things like{" "}
+              <em>“shorten this URL and give me the QR”</em> or{" "}
+              <em>“which of my links got the most clicks this month?”</em>
+            </p>
+            <ul class="mt-5 space-y-2 text-sm text-slate-700">
+              <li>
+                <strong>Role-scoped keys.</strong> A viewer key never even sees the
+                delete tool; editor and admin unlock more. Enforced by the API too.
+              </li>
+              <li>
+                <strong>Human in the loop.</strong> Destructive actions ask you to
+                confirm before anything happens.
+              </li>
+              <li>
+                <strong>Audit trail.</strong> Every change and every refused call is
+                logged, server-side and agent-side.
+              </li>
+              <li>
+                <strong>Local or remote.</strong> Run it over stdio with{" "}
+                <code class="rounded bg-slate-200 px-1 py-0.5 text-xs">npx 3m4-mcp</code>{" "}
+                or point your host at <code class="rounded bg-slate-200 px-1 py-0.5 text-xs">/mcp</code> with your key.
+              </li>
+            </ul>
+          </div>
+          <div class="card min-w-0 bg-slate-900 p-6 text-slate-100">
+            <div class="text-xs uppercase tracking-wide text-slate-400">Claude Code</div>
+            <pre class="mt-3 overflow-x-auto whitespace-pre-wrap break-all rounded-lg bg-slate-800 p-4 text-sm leading-relaxed"><code>{MCP_SNIPPET}</code></pre>
+            <div class="mt-5 text-xs uppercase tracking-wide text-slate-400">Any MCP host (JSON)</div>
+            <pre class="mt-3 overflow-x-auto rounded-lg bg-slate-800 p-4 text-xs leading-relaxed"><code>{`{
+  "mcpServers": {
+    "3m4": {
+      "command": "npx",
+      "args": ["-y", "3m4-mcp"],
+      "env": { "M4_API_KEY": "m4_live_…" }
+    }
+  }
+}`}</code></pre>
+            <p class="mt-4 text-sm text-slate-300">
+              Create a key with the role you want under{" "}
+              <Link href="/dashboard/settings" class="text-white underline">
+                Dashboard → API keys
+              </Link>
+              .
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Self-host callout */}
       <section class="mx-auto max-w-6xl px-4 pb-20">
         <div class="card flex flex-col items-start gap-6 bg-slate-900 p-8 text-white sm:flex-row sm:items-center sm:justify-between">
@@ -93,7 +171,7 @@ export default component$(() => {
             </p>
           </div>
           <a
-            href="https://github.com/your-org/3m4"
+            href="https://github.com/Devace-93/3m4"
             target="_blank"
             rel="noreferrer"
             class="btn bg-white text-slate-900 hover:bg-slate-100"

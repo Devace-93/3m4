@@ -1,34 +1,27 @@
-import { component$, useStore, useVisibleTask$, $ } from "@builder.io/qwik";
+import { component$, useContext, useStore, useVisibleTask$, $ } from "@builder.io/qwik";
 import { Link, useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import { api, ApiRequestError } from "../../../lib/api";
 import { setTokens, isAuthenticated } from "../../../lib/auth";
 import { identify, capture } from "../../../lib/analytics";
-import { FLAG_DEFAULTS } from "../../../lib/flags";
+import { FlagsContext } from "../../../lib/flags";
 
 export default component$(() => {
   const nav = useNavigate();
+  // Public flags are resolved by the root layout (server-side), so the
+  // invite-only state renders without a client round-trip.
+  const flags = useContext(FlagsContext);
   const state = useStore({
     email: "",
     password: "",
     accountName: "",
     loading: false,
     error: "",
-    signupsEnabled: FLAG_DEFAULTS.signups,
   });
 
+  // Already signed in? Skip straight to the dashboard.
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(async () => {
-    if (isAuthenticated()) {
-      nav("/dashboard");
-      return;
-    }
-    // Anonymous flag check: when `signups` is OFF, show the invite-only state.
-    try {
-      const res = await api.flags();
-      state.signupsEnabled = res.flags["signups"] ?? FLAG_DEFAULTS.signups;
-    } catch {
-      /* keep the fail-safe default */
-    }
+  useVisibleTask$(() => {
+    if (isAuthenticated()) nav("/dashboard");
   });
 
   const submit = $(async () => {
@@ -54,7 +47,7 @@ export default component$(() => {
     }
   });
 
-  if (!state.signupsEnabled) {
+  if (!flags.signups) {
     return (
       <div class="card p-8 text-center">
         <h1 class="text-2xl font-bold text-slate-900">
@@ -77,7 +70,9 @@ export default component$(() => {
     <div class="card p-8">
       <h1 class="text-2xl font-bold text-slate-900">Create your account</h1>
       <p class="mt-1 text-sm text-slate-500">
-        Free forever: 50 links &amp; 1,000 tracked clicks / month.
+        {flags["early-access"]
+          ? "Early access: full access, free. No card required."
+          : "Free forever: 50 links & 1,000 tracked clicks / month."}
       </p>
 
       <form class="mt-6 space-y-4" preventdefault:submit onSubmit$={submit}>

@@ -1,11 +1,14 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useContext } from "@builder.io/qwik";
 import { Link, type DocumentHead } from "@builder.io/qwik-city";
+import { FlagsContext } from "../../../lib/flags";
 
 // Supporters are added here (with their permission) as Pro/Team subscriptions
 // come in. Empty until launch brings the first ones.
 const sponsors: { name: string; tier: string; url: string }[] = [];
 
 export default component$(() => {
+  const flags = useContext(FlagsContext);
+  const early = flags["early-access"];
   return (
     <div class="mx-auto max-w-4xl px-4 py-16">
       <div class="text-center">
@@ -15,8 +18,8 @@ export default component$(() => {
           <Link href="/info/pricing" class="text-primary-600 hover:underline">
             Pro / Supporter
           </Link>{" "}
-          subscriber helps keep it free to self-host — and gets a badge and a
-          spot on this page.
+          subscriber {early ? "will help" : "helps"} keep it free to self-host
+          — and {early ? "will get" : "gets"} a badge and a spot on this page.
         </p>
       </div>
 
@@ -26,8 +29,9 @@ export default component$(() => {
             Your name could be the first on this page.
           </p>
           <p class="mt-1 text-sm text-slate-500">
-            Every Pro / Supporter subscriber gets a spot here and an embeddable
-            badge.
+            {early
+              ? "Supporter subscriptions open together with paid plans, after early access. Until then every account is free."
+              : "Every Pro / Supporter subscriber gets a spot here and an embeddable badge."}
           </p>
         </div>
       )}
@@ -65,7 +69,8 @@ export default component$(() => {
       <div class="mt-12 card p-6">
         <h2 class="font-semibold text-slate-900">The supporter badge</h2>
         <p class="mt-1 text-sm text-slate-600">
-          Pro supporters get an embeddable badge for their site or README:
+          Pro supporters {early ? "will get" : "get"} an embeddable badge for
+          their site or README:
         </p>
         <div class="mt-4 inline-flex items-center gap-2 rounded-lg border border-primary-200 bg-primary-50 px-3 py-1.5 text-sm font-medium text-primary-700">
           <span class="grid h-5 w-5 place-items-center rounded bg-primary-600 text-[10px] font-extrabold text-white">
@@ -76,9 +81,15 @@ export default component$(() => {
       </div>
 
       <div class="mt-10 text-center">
-        <Link href="/signup" class="btn-primary">
-          Become a supporter
-        </Link>
+        {early ? (
+          <Link href="/blog/what-paid-plans-will-include" class="btn-primary">
+            Read about the upcoming plans
+          </Link>
+        ) : (
+          <Link href="/signup" class="btn-primary">
+            Become a supporter
+          </Link>
+        )}
       </div>
     </div>
   );

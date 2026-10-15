@@ -1,5 +1,6 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useContext } from "@builder.io/qwik";
 import { Link, type DocumentHead } from "@builder.io/qwik-city";
+import { FlagsContext } from "../../../lib/flags";
 
 const pages = [
   { href: "/info/pricing", title: "Pricing", body: "Plans, limits, and prices." },
@@ -9,6 +10,8 @@ const pages = [
 ];
 
 export default component$(() => {
+  const flags = useContext(FlagsContext);
+  const early = flags["early-access"];
   return (
     <div class="mx-auto max-w-4xl px-4 py-16">
       <h1 class="text-3xl font-bold text-slate-900">Info</h1>
@@ -18,8 +21,14 @@ export default component$(() => {
       <div class="mt-8 grid gap-4 sm:grid-cols-2">
         {pages.map((p) => (
           <Link key={p.href} href={p.href} class="card p-5 hover:border-primary-300">
-            <h2 class="font-semibold text-slate-900">{p.title}</h2>
-            <p class="mt-1 text-sm text-slate-600">{p.body}</p>
+            <h2 class="font-semibold text-slate-900">
+              {early && p.href === "/info/pricing" ? "Planned pricing" : p.title}
+            </h2>
+            <p class="mt-1 text-sm text-slate-600">
+              {early && p.href === "/info/pricing"
+                ? "The tiers we intend to introduce after early access."
+                : p.body}
+            </p>
           </Link>
         ))}
       </div>

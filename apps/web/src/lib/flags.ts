@@ -16,7 +16,9 @@ export type FlagKey =
   | "custom-slugs"
   | "analytics-dashboard"
   | "public-api"
-  | "billing";
+  | "billing"
+  | "early-access"
+  | "projects";
 
 export type FeatureFlags = Record<FlagKey, boolean>;
 
