@@ -89,7 +89,23 @@ services:
         VITE_REVENUECAT_PUBLIC_KEY: ${VITE_REVENUECAT_PUBLIC_KEY:-}
         VITE_BILLING_ENABLED: ${VITE_BILLING_ENABLED:-true}
     env_file: ../.env
+    environment:
+      # SSR resolves feature flags straight from the API over the internal network.
+      API_INTERNAL_URL: http://api:5000/api
     expose: ["3000"]
+    restart: unless-stopped
+
+  # Remote MCP server (Streamable HTTP) for AI agents. Auth = 3m4 API key as
+  # a Bearer token; it only talks to the API service over the internal network.
+  mcp:
+    build: { context: .., dockerfile: packages/mcp-server/Dockerfile }
+    environment:
+      M4_API_URL: http://api:5000/api
+      M4_MCP_PORT: "3333"
+      M4_AUDIT_LOG: stderr
+    depends_on:
+      api: { condition: service_started }
+    expose: ["3333"]
     restart: unless-stopped
 
   caddy:
@@ -102,7 +118,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddydata:/data
       - caddyconfig:/config
-    depends_on: [api, web, redirect]
+    depends_on: [api, web, redirect, mcp]
     restart: unless-stopped
 
 volumes:

@@ -15,9 +15,14 @@
 		reverse_proxy api:5000
 	}
 
+	# --- MCP (Streamable HTTP) for AI agents ---
+	handle /mcp* {
+		reverse_proxy mcp:3333
+	}
+
 	# --- Marketing + dashboard (Qwik SSR) --- same matcher as dev (see Caddyfile
 	# comments there for why each path is listed).
-	@web path / /info /info/* /blog /blog/* /projects /projects/* /sponsors /sponsors/* /login /login/* /signup /signup/* /logout /logout/* /dashboard /dashboard/* /settings /settings/* /build/* /assets/* /favicon.ico /favicon.svg /robots.txt /sitemap.xml /manifest.json /service-worker.js *q-data.json
+	@web path / /info /info/* /blog /blog/* /projects /projects/* /sponsors /sponsors/* /login /login/* /signup /signup/* /logout /logout/* /dashboard /dashboard/* /settings /settings/* /build/* /assets/* /favicon.ico /favicon.svg /apple-touch-icon.png /icon-192.png /icon-512.png /robots.txt /sitemap.xml /manifest.json /service-worker.js *q-data.json
 	handle @web {
 		reverse_proxy web:3000
 	}
@@ -36,6 +41,11 @@ app.3m4.net {
 	# Dashboard calls the API same-origin (VITE_API_URL=/api).
 	handle /api/* {
 		reverse_proxy api:5000
+	}
+
+	# --- MCP (Streamable HTTP) for AI agents ---
+	handle /mcp* {
+		reverse_proxy mcp:3333
 	}
 	handle {
 		reverse_proxy web:3000
