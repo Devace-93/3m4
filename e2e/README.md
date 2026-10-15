@@ -57,3 +57,12 @@ request (and on demand), waits for `/api/healthz`, runs the suite and uploads
 
 Tests that expose a real app bug are kept and marked `test.fixme(...)` with a
 one-line reason, so they show up as skipped rather than silently passing.
+
+## Demo recording
+
+`docs/demo.gif` is generated, not hand-made:
+
+```bash
+cd e2e && bun run scripts/record-demo.ts        # drives the local stack, captures captioned frames
+cd .. && uv run --with pillow e2e/scripts/make-gif.py e2e/demo-frames docs/demo.gif
+```

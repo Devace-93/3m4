@@ -7,6 +7,8 @@ API — self-hostable under the MIT license.
 > Built by Enrique Magallon Alvarez. Hosted edition runs at `3m4.net`; the core is
 > free to self-host on your own infrastructure.
 
+![Demo: sign up, create a short link, QR code, click analytics, role-scoped API keys, MCP server](docs/demo.gif)
+
 ---
 
 ## Why 3m4
