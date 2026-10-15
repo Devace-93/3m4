@@ -15,6 +15,7 @@ services:
     # `edge` is a shared external network (docker network create edge) that
     # sibling stacks on this box join (exp at /opt/exp) so this Caddy can route
     # their subdomains by container name. Create it before deploying.
+    # smart-docs (/opt/smart-docs) joins it too.
     networks: [default, edge]
 
 networks:

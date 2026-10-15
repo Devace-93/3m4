@@ -67,6 +67,13 @@ exp.3m4.net {
 	}
 }
 
+# smart-docs (knowledge base): /opt/smart-docs, compose project `smart-docs`.
+# One FastAPI container serves the API, the editor, /mcp and the public pages.
+smart-docs.3m4.net {
+	encode gzip
+	reverse_proxy smart-docs-api-1:8000
+}
+
 # ── Static side apps ──────────────────────────────────────────────────────────
 # Uncomment per app once its files are rsynced to /srv/static/<app> on the host
 # and the /srv/static volume mount is enabled in docker-compose.prod.yml.
