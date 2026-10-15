@@ -6,7 +6,7 @@
 COMPOSE      := docker compose --env-file .env -f deploy/docker-compose.yml
 COMPOSE_SH   := docker compose --env-file .env -f deploy/docker-compose.yml -f deploy/docker-compose.selfhost.yml
 
-.PHONY: help up up-selfhost down build rebuild logs ps seed migrate shell-api shell-db clean
+.PHONY: help up up-selfhost down build rebuild logs ps seed migrate shell-api shell-db clean e2e
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -46,3 +46,6 @@ shell-db: ## psql into Postgres
 
 clean: ## Stop and remove volumes (DESTRUCTIVE: wipes the database)
 	$(COMPOSE) down -v
+
+e2e: ## Run the Playwright end-to-end suite against the running stack (E2E_BASE_URL)
+	cd e2e && bun install && bunx playwright install chromium && bun run test
