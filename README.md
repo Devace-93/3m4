@@ -26,6 +26,7 @@ Caddy (reverse proxy, auto-HTTPS)
  ├─ web        Qwik City (Bun)   landing + /info + /blog + /projects + /sponsors + dashboard
  ├─ redirect   Flask (hot path)  GET /<code> → enqueue click → 301/302
  ├─ api        Flask             auth, links, analytics, domains, billing webhooks, metering
+ ├─ mcp        Node (MCP)        AI-agent access: tools over the API, RBAC, approvals, audit
  └─ worker     Celery            click enrichment (geo/device/referrer), rollups, retention
       Postgres (source of truth) · Redis (cache + queue)
 ```
@@ -40,7 +41,8 @@ services/api/      Flask REST API
 services/redirect/ Flask redirect service
 services/worker/   Celery worker + beat
 apps/web/          Qwik City frontend (Bun)
-packages/shared/   plan_limits.json + reserved_slugs.json (single source of truth)
+packages/mcp-server/  MCP server (npm: 3m4-mcp) — stdio + Streamable HTTP
+packages/shared/   plan_limits.json, reserved_slugs.json, api_key_roles.json (single source of truth)
 deploy/            docker-compose, Caddyfile
 db/                Alembic scaffold for future migrations
 ```
@@ -73,12 +75,54 @@ make up-selfhost
 | `make seed` | re-seed reserved slugs |
 | `make build` | rebuild images |
 | `make ps` | service status |
+| `make e2e` | run the Playwright end-to-end suite against the running stack |
+
+## Tests
+
+End-to-end tests live in [`e2e/`](e2e/) (Playwright, Bun). They run against a
+running stack (`make up`), cover the critical paths (sign-up/login, links +
+redirects + analytics, API keys/RBAC, remote MCP, early-access surfaces) and
+run in CI on every pull request via `.github/workflows/e2e.yml`.
+
+```bash
+make e2e                      # or: cd e2e && bun install && bun run test
+```
 
 ## Configuration
 
 All config is environment-driven — see [`.env.example`](.env.example). Key values:
 `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET_KEY`, `IP_HASH_SALT`, `BILLING_ENABLED`,
 `REVENUECAT_WEBHOOK_AUTH_TOKEN`, `POSTHOG_API_KEY`, `RESUME_REDIRECT_URL`.
+
+## AI agents (MCP)
+
+3m4 ships an [MCP](https://modelcontextprotocol.io) server so agents can
+shorten links, pause them and read analytics on your behalf — see
+[`packages/mcp-server`](packages/mcp-server/). API keys carry a **role**
+(viewer / editor / admin → scopes) enforced by the API, mirrored by the MCP
+server (a read-only key never sees `delete_link`), and every mutation or
+denial lands in an append-only **audit log** (`GET /api/account/audit`).
+Destructive tools require **human confirmation**.
+
+```bash
+claude mcp add 3m4 --scope user --env M4_API_KEY=m4_live_… -- npx -y 3m4-mcp
+# or remote: claude mcp add --transport http 3m4 https://3m4.net/mcp --header "Authorization: Bearer m4_live_…"
+```
+
+## Feature flags per environment
+
+Resolution order, first match wins:
+
+1. `FEATURE_FLAG_OVERRIDES=site-building=on,signups=off` — pin flags from the
+   environment (any env, mostly local/CI).
+2. No `POSTHOG_API_KEY` (local, self-host) — every flag ON, except flags with
+   an explicit `self_host` value in
+   [`packages/shared/feature_flags.json`](packages/shared/feature_flags.json)
+   (`site-building` is off). No analytics calls are made.
+3. `POSTHOG_API_KEY` set (production) — whatever the PostHog dashboard says,
+   falling back to each flag's `default` if PostHog is unreachable.
+
+So local never touches PostHog, and production flags are managed in PostHog.
 
 ## Privacy
 
