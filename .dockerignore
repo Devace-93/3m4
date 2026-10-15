@@ -26,7 +26,6 @@ apps/web/.qwik/
 .env.*
 !.env.example
 deploy/
-db/
 geoip/*.mmdb
 *.log
 .DS_Store

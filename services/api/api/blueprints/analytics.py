@@ -13,7 +13,7 @@ from sqlalchemy import func, select
 from dbcore.db import session_scope
 from dbcore.models import ClickDailyRollup, Link
 
-from ..auth_utils import require_auth
+from ..auth_utils import require_auth_or_api_key, require_scope
 from ..flags import require_flag
 from ..serializers import range_to_days, short_url
 
@@ -21,7 +21,8 @@ bp = Blueprint("analytics", __name__)
 
 
 @bp.get("/overview")
-@require_auth
+@require_auth_or_api_key
+@require_scope("analytics:read")
 @require_flag("analytics-dashboard", status=404)
 def overview():
     days = range_to_days(request.args.get("range"))

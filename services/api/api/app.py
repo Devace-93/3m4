@@ -45,10 +45,12 @@ def create_app() -> Flask:
     from .blueprints.apikeys import bp as apikeys_bp
     from .blueprints.auth import bp as auth_bp
     from .blueprints.links import bp as links_bp
+    from .blueprints.qr import bp as qr_bp
     from .flags import bp as flags_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(links_bp, url_prefix="/api/links")
+    app.register_blueprint(qr_bp, url_prefix="/api/qr")
     app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
     app.register_blueprint(account_bp, url_prefix="/api/account")
     app.register_blueprint(apikeys_bp, url_prefix="/api/apikeys")

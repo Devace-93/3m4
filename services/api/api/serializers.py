@@ -21,7 +21,7 @@ def iso(dt: datetime | None) -> str | None:
 
 
 def short_url(short_code: str) -> str:
-    return f"https://{config.short_domain}/{short_code}"
+    return f"{config.short_url_scheme}://{config.short_domain}/{short_code}"
 
 
 def serialize_user(user) -> dict:
@@ -64,6 +64,7 @@ def serialize_api_key(api_key) -> dict:
         "id": str(api_key.id),
         "name": api_key.name,
         "prefix": api_key.prefix,
+        "role": api_key.role,
         "last_used_at": iso(api_key.last_used_at),
         "created_at": iso(api_key.created_at),
     }
@@ -95,3 +96,18 @@ def counts_to_list(counts: dict) -> list[dict]:
     items = [{"key": k, "count": v} for k, v in counts.items()]
     items.sort(key=lambda d: d["count"], reverse=True)
     return items
+
+
+def serialize_audit_event(event) -> dict:
+    return {
+        "id": str(event.id),
+        "ts": iso(event.ts),
+        "actor_type": event.actor_type,
+        "actor_id": str(event.actor_id) if event.actor_id else None,
+        "actor_label": event.actor_label,
+        "action": event.action,
+        "target_type": event.target_type,
+        "target_id": event.target_id,
+        "outcome": event.outcome,
+        "meta": event.meta or {},
+    }
