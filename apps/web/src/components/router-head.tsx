@@ -19,6 +19,14 @@ export const RouterHead = component$(() => {
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       <link rel="manifest" href="/manifest.json" />
+      <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="3m4" />
+      <meta property="og:title" content={head.title || "3m4 — Short links with real click analytics"} />
+      <meta property="og:url" content={loc.url.href} />
+      <meta property="og:image" content={new URL("/og-image.png", loc.url.origin).href} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta name="twitter:card" content="summary_large_image" />
 
       {head.meta.map((m) => (
         <meta key={m.key} {...m} />

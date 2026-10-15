@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: radial-gradient(1200px 700px at 85% -10%, #dbeafe 0%, #ffffff 55%), #ffffff;
+    color: #0f172a; position: relative;
+  }
+  .grid { position: absolute; inset: 0; background-image: linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px); background-size: 48px 48px; opacity: .45; mask-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.15)); }
+  .wrap { position: absolute; inset: 0; padding: 64px 72px; display: grid; grid-template-columns: 1fr 380px; gap: 40px; align-items: center; }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .mark { width: 64px; height: 64px; border-radius: 16px; background: #2563eb; color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 26px; letter-spacing: -.02em; box-shadow: 0 10px 30px rgba(37,99,235,.35); }
+  .word { font-size: 40px; font-weight: 800; letter-spacing: -.03em; }
+  .word b { color: #2563eb; font-weight: 800; }
+  h1 { margin-top: 36px; font-size: 64px; line-height: 1.04; font-weight: 800; letter-spacing: -.035em; max-width: 680px; }
+  h1 span { color: #2563eb; }
+  .sub { margin-top: 22px; font-size: 26px; color: #475569; max-width: 640px; line-height: 1.35; }
+  .chips { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .chip { font-size: 19px; font-weight: 600; padding: 9px 16px; border-radius: 999px; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .chip.dark { background: #0f172a; color: #fff; border-color: #0f172a; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 24px 60px rgba(15,23,42,.12); padding: 26px 26px 22px; width: 380px; }
+  .url { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; font-size: 22px; font-weight: 600; color: #2563eb; }
+  .dest { margin-top: 6px; font-size: 15px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat { margin-top: 22px; display: flex; align-items: baseline; gap: 10px; }
+  .stat b { font-size: 42px; font-weight: 800; letter-spacing: -.03em; }
+  .stat span { font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: .08em; }
+  .bars { margin-top: 14px; display: flex; align-items: flex-end; gap: 7px; height: 96px; }
+  .bars i { flex: 1; background: #93c5fd; border-radius: 5px 5px 2px 2px; display: block; }
+  .bars i:nth-child(7) { background: #2563eb; }
+  .row { margin-top: 18px; display: flex; justify-content: space-between; align-items: center; }
+  .geo { font-size: 14px; color: #475569; line-height: 1.6; }
+  .geo b { color: #0f172a; }
+  .qr { width: 78px; height: 78px; display: grid; grid-template-columns: repeat(9, 1fr); gap: 1px; padding: 5px; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .qr i { background: #0f172a; border-radius: 1px; }
+  .qr i.o { background: transparent; }
+  .foot { position: absolute; left: 72px; right: 72px; bottom: 40px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; color: #64748b; }
+  .foot b { color: #0f172a; font-weight: 700; }
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="wrap">
+    <div>
+      <div class="brand"><div class="mark">3m</div><div class="word">3m<b>4</b></div></div>
+      <h1>Short links with <span>real click analytics</span></h1>
+      <p class="sub">Geo, device and referrer breakdowns. QR codes. A public API, and an MCP server so your AI agent can manage links.</p>
+      <div class="chips"><span class="chip">Open source · MIT</span><span class="chip">Self-hostable</span><span class="chip dark">MCP for AI agents</span></div>
+    </div>
+    <div class="card">
+      <div class="url">3m4.net/launch</div>
+      <div class="dest">→ https://example.com/blog/2026/product-launch-notes</div>
+      <div class="stat"><b>1,284</b><span>clicks · 7 days</span></div>
+      <div class="bars"><i style="height:32%"></i><i style="height:48%"></i><i style="height:40%"></i><i style="height:66%"></i><i style="height:58%"></i><i style="height:78%"></i><i style="height:100%"></i></div>
+      <div class="row">
+        <div class="geo"><b>MX</b> 46% · <b>US</b> 31% · <b>ES</b> 9%<br>mobile 62% · desktop 38%</div>
+        <div class="qr" id="qr"></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span><b>3m4.net</b> · free during early access</span><span>github.com/Devace-93/3m4</span></div>
+  <script>
+    // Deterministic pseudo-QR pattern with finder squares.
+    const g = document.getElementById('qr'); const N = 9; let seed = 7;
+    const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    const finder = (r, c) => (r < 3 && c < 3) || (r < 3 && c > 5) || (r > 5 && c < 3);
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      const i = document.createElement('i');
+      let on;
+      if (finder(r, c)) { const rr = r % 6 > 2 ? r - 6 : r, cc = c % 6 > 2 ? c - 6 : c; on = !(((rr === 1) && (cc === 1)) === false && (rr === 1 || cc === 1)); }
+      else on = rnd() > 0.5;
+      if (!on) i.className = 'o';
+      g.appendChild(i);
+    }
+  </script>
+</body></html>
