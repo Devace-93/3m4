@@ -3,9 +3,11 @@ import { Link, useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import { api, ApiRequestError } from "../../../lib/api";
 import { setTokens, isAuthenticated } from "../../../lib/auth";
 import { identify } from "../../../lib/analytics";
+import { tr, useI18n } from "../../../i18n";
 
 export default component$(() => {
   const nav = useNavigate();
+  const i18n = useI18n();
   const state = useStore({
     email: "",
     password: "",
@@ -19,6 +21,9 @@ export default component$(() => {
     if (isAuthenticated()) nav("/dashboard");
   });
 
+  // Resolved during render so the handler captures a string, not the store.
+  const msgLoginFailed = tr(i18n, "auth.loginFailed");
+
   const submit = $(async () => {
     state.error = "";
     state.loading = true;
@@ -28,10 +33,7 @@ export default component$(() => {
       identify(res.user.id, res.account.id, res.account.plan);
       await nav("/dashboard");
     } catch (e) {
-      state.error =
-        e instanceof ApiRequestError
-          ? e.error.message
-          : "Login failed. Check your email and password.";
+      state.error = e instanceof ApiRequestError ? e.error.message : msgLoginFailed;
     } finally {
       state.loading = false;
     }
@@ -39,8 +41,8 @@ export default component$(() => {
 
   return (
     <div class="card p-8">
-      <h1 class="text-2xl font-bold text-slate-900">Log in</h1>
-      <p class="mt-1 text-sm text-slate-500">Welcome back to 3m4.</p>
+      <h1 class="text-2xl font-bold text-slate-900">{tr(i18n, "auth.loginTitle")}</h1>
+      <p class="mt-1 text-sm text-slate-500">{tr(i18n, "auth.loginSubtitle")}</p>
 
       <form
         class="mt-6 space-y-4"
@@ -54,7 +56,7 @@ export default component$(() => {
         )}
         <div>
           <label class="label" for="email">
-            Email
+            {tr(i18n, "common.email")}
           </label>
           <input
             id="email"
@@ -68,7 +70,7 @@ export default component$(() => {
         </div>
         <div>
           <label class="label" for="password">
-            Password
+            {tr(i18n, "common.password")}
           </label>
           <input
             id="password"
@@ -81,14 +83,14 @@ export default component$(() => {
           />
         </div>
         <button type="submit" class="btn-primary w-full" disabled={state.loading}>
-          {state.loading ? "Logging in…" : "Log in"}
+          {state.loading ? tr(i18n, "auth.loggingIn") : tr(i18n, "auth.loginTitle")}
         </button>
       </form>
 
       <p class="mt-6 text-center text-sm text-slate-500">
-        Don't have an account?{" "}
+        {tr(i18n, "auth.noAccount")}{" "}
         <Link href="/signup" class="font-medium text-primary-600 hover:underline">
-          Sign up
+          {tr(i18n, "auth.signUp")}
         </Link>
       </p>
     </div>

@@ -1,21 +1,23 @@
 import { component$ } from "@builder.io/qwik";
 import { useLocation, Link, type DocumentHead } from "@builder.io/qwik-city";
 import { findPost, fmtDate } from "../../../../content/posts";
+import { tr, useI18n } from "../../../../i18n";
 
 export default component$(() => {
   const loc = useLocation();
+  const i18n = useI18n();
   const slug = (loc.params.slug || "").split("/")[0];
   const post = findPost(slug);
 
   if (!post) {
     return (
       <article class="mx-auto max-w-2xl px-4 py-20 text-center">
-        <h1 class="text-3xl font-bold text-slate-900">Post not found</h1>
+        <h1 class="text-3xl font-bold text-slate-900">{tr(i18n, "blog.notFoundTitle")}</h1>
         <p class="mt-3 text-slate-600">
-          There is no post at <code class="rounded bg-slate-100 px-1.5 py-0.5 text-sm">/blog/{slug}</code>.
+          {tr(i18n, "blog.notFoundBody")} <code class="rounded bg-slate-100 px-1.5 py-0.5 text-sm">/blog/{slug}</code>.
         </p>
         <Link href="/blog" class="btn-secondary mt-8">
-          Back to Blog
+          {tr(i18n, "blog.backToBlog")}
         </Link>
       </article>
     );
@@ -24,7 +26,7 @@ export default component$(() => {
   return (
     <article class="mx-auto max-w-2xl px-4 py-16">
       <Link href="/blog" class="text-sm text-slate-500 hover:text-primary-600">
-        ← All posts
+        {tr(i18n, "blog.allPosts")}
       </Link>
       <time dateTime={post.date} class="mt-6 block text-xs uppercase tracking-wide text-slate-400">
         {fmtDate(post.date)}
@@ -54,10 +56,10 @@ export default component$(() => {
       </div>
       <div class="mt-10 flex flex-wrap gap-3">
         <Link href="/info/pricing" class="btn-secondary">
-          See the planned tiers
+          {tr(i18n, "blog.seeTiers")}
         </Link>
         <Link href="/signup" class="btn-primary">
-          Get started free
+          {tr(i18n, "landing.getStarted")}
         </Link>
       </div>
     </article>

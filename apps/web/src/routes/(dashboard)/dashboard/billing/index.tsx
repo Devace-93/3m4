@@ -10,6 +10,7 @@ import { PLANS, fmtLimit, fmtPrice, fmtRetention } from "../../../../lib/plans";
 import { api } from "../../../../lib/api";
 import { capture } from "../../../../lib/analytics";
 import { FlagsContext } from "../../../../lib/flags";
+import { tr, useI18n } from "../../../../i18n";
 
 // Self-host builds set VITE_BILLING_ENABLED=false → hide all purchase UI.
 const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED !== "false";
@@ -18,6 +19,7 @@ const PAID = ["pro", "team"] as const;
 
 export default component$(() => {
   const flags = useContext(FlagsContext);
+  const i18n = useI18n();
   const state = useStore({
     annual: false,
     plan: "free",
@@ -38,6 +40,20 @@ export default component$(() => {
       .catch(() => {});
   });
 
+  // Resolved during render so the handler captures plain strings, not the
+  // i18n store. Templates with placeholders are filled inside the handler.
+  const msg = {
+    notConfigured: tr(i18n, "billing.notConfigured"),
+    signInAgain: tr(i18n, "billing.signInAgain"),
+    opening: tr(i18n, "billing.openingCheckout"),
+    activating: tr(i18n, "billing.activating"),
+    nowOnPlan: tr(i18n, "billing.nowOnPlan"), // {plan}
+    willUpdate: tr(i18n, "billing.willUpdate"),
+    cancelled: tr(i18n, "billing.cancelled"),
+    checkoutFailed: tr(i18n, "billing.checkoutFailed"), // {msg}
+    unknownError: tr(i18n, "billing.unknownError"),
+  };
+
   const upgrade = $(async (plan: "pro" | "team") => {
     if (state.busy) return;
     capture("checkout_started", {
@@ -47,9 +63,7 @@ export default component$(() => {
 
     const apiKey = import.meta.env.VITE_REVENUECAT_PUBLIC_KEY;
     if (!apiKey) {
-      state.notice =
-        "Billing isn't configured yet (missing VITE_REVENUECAT_PUBLIC_KEY). " +
-        "Add your RevenueCat Web Billing public key to .env and rebuild the web image.";
+      state.notice = msg.notConfigured;
       return;
     }
 
@@ -59,13 +73,13 @@ export default component$(() => {
         const me = await api.me();
         state.accountId = me.account.id;
       } catch {
-        state.notice = "Please sign in again to upgrade.";
+        state.notice = msg.signInAgain;
         return;
       }
     }
 
     state.busy = true;
-    state.notice = "Opening secure checkout…";
+    state.notice = msg.opening;
     try {
       const { Purchases } = await import("@revenuecat/purchases-js");
 
@@ -94,7 +108,7 @@ export default component$(() => {
 
       // Entitlement is granted immediately; our backend webhook flips
       // accounts.plan asynchronously, so poll /auth/me until it reflects.
-      state.notice = "Payment complete — activating your plan…";
+      state.notice = msg.activating;
       for (let i = 0; i < 12; i++) {
         const me = await api.me();
         if (me.account.plan === plan) {
@@ -105,14 +119,14 @@ export default component$(() => {
       }
       state.notice =
         state.plan === plan
-          ? `You're now on the ${PLANS[plan].label} plan! 🎉`
-          : "Payment received — your plan will update momentarily.";
+          ? msg.nowOnPlan.split("{plan}").join(PLANS[plan].label)
+          : msg.willUpdate;
     } catch (err: any) {
-      const msg = String(err?.message ?? err ?? "");
+      const m = String(err?.message ?? err ?? "");
       state.notice =
-        /cancel/i.test(msg) || err?.errorCode === "UserCancelledError"
-          ? "Checkout cancelled."
-          : `Checkout failed: ${msg || "unknown error"}`;
+        /cancel/i.test(m) || err?.errorCode === "UserCancelledError"
+          ? msg.cancelled
+          : msg.checkoutFailed.split("{msg}").join(m || msg.unknownError);
     } finally {
       state.busy = false;
     }
@@ -121,14 +135,14 @@ export default component$(() => {
   if (!BILLING_ENABLED) {
     return (
       <div class="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 class="text-2xl font-bold text-slate-900">Billing</h1>
+        <h1 class="text-2xl font-bold text-slate-900">{tr(i18n, "billing.title")}</h1>
         <div class="mt-6 card p-8 text-slate-600">
           <p class="font-medium text-slate-800">
-            This is a self-hosted instance.
+            {tr(i18n, "billing.selfHostTitle")}
           </p>
           <p class="mt-2 text-sm">
-            Billing is disabled (<code>VITE_BILLING_ENABLED=false</code>). All
-            limits come from your configuration — there are no plans to purchase.
+            {tr(i18n, "billing.selfHostDisabled")} (<code>VITE_BILLING_ENABLED=false</code>).{" "}
+            {tr(i18n, "billing.selfHostLimits")}
           </p>
         </div>
       </div>
@@ -138,17 +152,16 @@ export default component$(() => {
   if (flags["early-access"]) {
     return (
       <div class="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 class="text-2xl font-bold text-slate-900">Billing</h1>
+        <h1 class="text-2xl font-bold text-slate-900">{tr(i18n, "billing.title")}</h1>
         <div class="mt-6 card p-8 text-slate-600">
           <p class="font-medium text-slate-800">
-            You're in early access: everything is included, free.
+            {tr(i18n, "billing.earlyTitle")}
           </p>
           <p class="mt-2 text-sm">
-            There is nothing to buy yet. Plans and limits will be introduced
-            later, and you'll hear about it before anything changes.
+            {tr(i18n, "billing.earlyBody")}
           </p>
           <Link href="/blog/what-paid-plans-will-include" class="btn-secondary mt-6">
-            What paid plans will include
+            {tr(i18n, "billing.earlyLink")}
           </Link>
         </div>
       </div>
@@ -158,14 +171,13 @@ export default component$(() => {
   if (!flags.billing) {
     return (
       <div class="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 class="text-2xl font-bold text-slate-900">Billing</h1>
+        <h1 class="text-2xl font-bold text-slate-900">{tr(i18n, "billing.title")}</h1>
         <div class="mt-6 card p-8 text-slate-600">
           <p class="font-medium text-slate-800">
-            Paid plans aren't available just yet.
+            {tr(i18n, "billing.unavailableTitle")}
           </p>
           <p class="mt-2 text-sm">
-            We're rolling out billing gradually. You keep everything in your
-            current plan — check back soon.
+            {tr(i18n, "billing.unavailableBody")}
           </p>
         </div>
       </div>
@@ -175,17 +187,18 @@ export default component$(() => {
   return (
     <div class="mx-auto max-w-4xl px-4 py-12">
       <div class="text-center">
-        <h1 class="text-3xl font-bold text-slate-900">Upgrade your plan</h1>
+        <h1 class="text-3xl font-bold text-slate-900">{tr(i18n, "billing.upgradeTitle")}</h1>
         <p class="mt-2 text-slate-600">
-          You're on the <span class="font-semibold capitalize">{state.plan}</span>{" "}
-          plan. Unlock more links, clicks, domains, and longer retention.
+          {tr(i18n, "billing.onPlanPrefix")}{" "}
+          <span class="font-semibold capitalize">{state.plan}</span>{" "}
+          {tr(i18n, "billing.onPlanSuffix")}
         </p>
       </div>
 
       {/* Monthly / annual toggle */}
       <div class="mt-6 flex items-center justify-center gap-3">
         <span class={state.annual ? "text-slate-400" : "font-medium text-slate-900"}>
-          Monthly
+          {tr(i18n, "billing.monthly")}
         </span>
         <button
           type="button"
@@ -205,7 +218,8 @@ export default component$(() => {
           />
         </button>
         <span class={state.annual ? "font-medium text-slate-900" : "text-slate-400"}>
-          Annual <span class="text-xs text-green-600">(save ~20%)</span>
+          {tr(i18n, "billing.annual")}{" "}
+          <span class="text-xs text-green-600">{tr(i18n, "billing.annualSave")}</span>
         </span>
       </div>
 
@@ -231,18 +245,20 @@ export default component$(() => {
               <h2 class="text-lg font-semibold text-slate-900">{plan.label}</h2>
               <div class="mt-2 flex items-baseline gap-1">
                 <span class="text-3xl font-bold text-slate-900">
-                  {fmtPrice(price)}
+                  {fmtPrice(price, i18n)}
                 </span>
                 <span class="text-sm text-slate-500">
-                  /{state.annual ? "yr" : "mo"}
+                  /{state.annual ? tr(i18n, "billing.perYear") : tr(i18n, "billing.perMonth")}
                 </span>
               </div>
               <ul class="mt-5 flex-1 space-y-2 text-sm text-slate-600">
-                <li>{fmtLimit(plan.links_per_month)} links / mo</li>
-                <li>{fmtLimit(plan.tracked_clicks_per_month)} tracked clicks / mo</li>
-                <li>{fmtLimit(plan.custom_domains)} custom domains</li>
-                <li>{fmtRetention(plan.retention_days)} retention</li>
-                <li>{fmtLimit(plan.max_users)} users</li>
+                <li>{tr(i18n, "billing.featLinks", { n: fmtLimit(plan.links_per_month, i18n) })}</li>
+                <li>
+                  {tr(i18n, "billing.featClicks", { n: fmtLimit(plan.tracked_clicks_per_month, i18n) })}
+                </li>
+                <li>{tr(i18n, "billing.featDomains", { n: fmtLimit(plan.custom_domains, i18n) })}</li>
+                <li>{tr(i18n, "billing.featRetention", { n: fmtRetention(plan.retention_days, i18n) })}</li>
+                <li>{tr(i18n, "billing.featUsers", { n: fmtLimit(plan.max_users, i18n) })}</li>
               </ul>
               <button
                 type="button"
@@ -251,10 +267,10 @@ export default component$(() => {
                 onClick$={() => upgrade(key)}
               >
                 {current
-                  ? "Current plan"
+                  ? tr(i18n, "billing.currentPlan")
                   : state.busy
-                    ? "Processing…"
-                    : `Upgrade to ${plan.label.split(" ")[0]}`}
+                    ? tr(i18n, "billing.processing")
+                    : tr(i18n, "billing.upgradeTo", { plan: plan.label.split(" ")[0] })}
               </button>
             </div>
           );
@@ -262,8 +278,8 @@ export default component$(() => {
       </div>
 
       <p class="mt-6 text-center text-xs text-slate-400">
-        Payments are processed by RevenueCat (Stripe). Entitlements{" "}
-        <code>pro</code> / <code>team</code> map to your plan automatically.
+        {tr(i18n, "billing.processedBy")} {tr(i18n, "billing.entitlementsPrefix")}{" "}
+        <code>pro</code> / <code>team</code> {tr(i18n, "billing.entitlementsSuffix")}
       </p>
     </div>
   );

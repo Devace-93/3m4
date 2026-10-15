@@ -8,6 +8,7 @@ import {
 import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import { api, ApiRequestError } from "../../../../lib/api";
 import { FlagsContext } from "../../../../lib/flags";
+import { tr, useI18n } from "../../../../i18n";
 import type { ApiKey, ApiKeyRole } from "../../../../lib/types";
 import roleRegistry from "../../../../../../../packages/shared/api_key_roles.json";
 
@@ -20,6 +21,7 @@ const DEFAULT_ROLE = roleRegistry.default_role as ApiKeyRole;
 export default component$(() => {
   const nav = useNavigate();
   const flags = useContext(FlagsContext);
+  const i18n = useI18n();
   const state = useStore<{
     keys: ApiKey[];
     loading: boolean;
@@ -40,6 +42,11 @@ export default component$(() => {
     copied: false,
   });
 
+  // Resolved during render so handlers capture strings, not the i18n store.
+  const msgLoadFailed = tr(i18n, "keys.loadFailed");
+  const msgCreateFailed = tr(i18n, "keys.createFailed");
+  const msgRevokeFailed = tr(i18n, "keys.revokeFailed");
+
   const load = $(async () => {
     state.loading = true;
     state.error = "";
@@ -50,8 +57,7 @@ export default component$(() => {
         nav("/login");
         return;
       }
-      state.error =
-        e instanceof ApiRequestError ? e.error.message : "Failed to load API keys.";
+      state.error = e instanceof ApiRequestError ? e.error.message : msgLoadFailed;
     } finally {
       state.loading = false;
     }
@@ -73,8 +79,7 @@ export default component$(() => {
       state.newRole = DEFAULT_ROLE;
       load();
     } catch (e) {
-      state.error =
-        e instanceof ApiRequestError ? e.error.message : "Could not create key.";
+      state.error = e instanceof ApiRequestError ? e.error.message : msgCreateFailed;
     } finally {
       state.creating = false;
     }
@@ -85,8 +90,7 @@ export default component$(() => {
       await api.deleteApiKey(id);
       state.keys = state.keys.filter((k) => k.id !== id);
     } catch (e) {
-      state.error =
-        e instanceof ApiRequestError ? e.error.message : "Could not revoke key.";
+      state.error = e instanceof ApiRequestError ? e.error.message : msgRevokeFailed;
     }
   });
 
@@ -103,13 +107,13 @@ export default component$(() => {
   if (!flags["public-api"]) {
     return (
       <div class="mx-auto max-w-3xl px-4 py-16 text-center">
-        <h1 class="text-2xl font-bold text-slate-900">API keys</h1>
+        <h1 class="text-2xl font-bold text-slate-900">{tr(i18n, "keys.title")}</h1>
         <div class="mt-6 card p-8 text-slate-600">
           <p class="font-medium text-slate-800">
-            The public API isn't available yet.
+            {tr(i18n, "keys.unavailableTitle")}
           </p>
           <p class="mt-2 text-sm">
-            We're rolling it out gradually — check back soon.
+            {tr(i18n, "keys.unavailableBody")}
           </p>
         </div>
       </div>
@@ -118,9 +122,9 @@ export default component$(() => {
 
   return (
     <div class="mx-auto max-w-3xl px-4 py-8">
-      <h1 class="text-2xl font-bold text-slate-900">API keys</h1>
+      <h1 class="text-2xl font-bold text-slate-900">{tr(i18n, "keys.title")}</h1>
       <p class="mt-1 text-sm text-slate-500">
-        Use keys with the public API:{" "}
+        {tr(i18n, "keys.usage")}{" "}
         <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs">
           X-API-Key: m4_live_…
         </code>
@@ -136,14 +140,14 @@ export default component$(() => {
       {state.createdSecret && (
         <div class="mt-4 rounded-lg border border-green-300 bg-green-50 p-4">
           <p class="text-sm font-semibold text-green-800">
-            Copy your new key now — it won't be shown again.
+            {tr(i18n, "keys.copyNow")}
           </p>
           <div class="mt-2 flex items-center gap-2">
             <code class="flex-1 overflow-x-auto rounded bg-white px-3 py-2 text-sm text-slate-800">
               {state.createdSecret}
             </code>
             <button type="button" class="btn-secondary" onClick$={copySecret}>
-              {state.copied ? "Copied!" : "Copy"}
+              {state.copied ? tr(i18n, "common.copied") : tr(i18n, "common.copy")}
             </button>
           </div>
           <button
@@ -151,7 +155,7 @@ export default component$(() => {
             class="btn-ghost mt-2 text-xs"
             onClick$={() => (state.createdSecret = "")}
           >
-            Dismiss
+            {tr(i18n, "keys.dismiss")}
           </button>
         </div>
       )}
@@ -164,12 +168,12 @@ export default component$(() => {
       >
         <div class="flex-1">
           <label class="label" for="keyname">
-            New key name
+            {tr(i18n, "keys.newKeyName")}
           </label>
           <input
             id="keyname"
             type="text"
-            placeholder="CI pipeline"
+            placeholder={tr(i18n, "keys.namePlaceholder")}
             class="input"
             value={state.newName}
             onInput$={(_, el) => (state.newName = el.value)}
@@ -177,7 +181,7 @@ export default component$(() => {
         </div>
         <div>
           <label class="label" for="keyrole">
-            Role
+            {tr(i18n, "common.role")}
           </label>
           <select
             id="keyrole"
@@ -193,7 +197,7 @@ export default component$(() => {
           </select>
         </div>
         <button type="submit" class="btn-primary" disabled={state.creating}>
-          {state.creating ? "Creating…" : "Create key"}
+          {state.creating ? tr(i18n, "common.creating") : tr(i18n, "keys.createKey")}
         </button>
       </form>
       <p class="mt-2 text-xs text-slate-500">
@@ -204,19 +208,23 @@ export default component$(() => {
       {/* List */}
       <div class="mt-6 card overflow-hidden">
         {state.loading ? (
-          <div class="p-8 text-center text-sm text-slate-400">Loading…</div>
+          <div class="p-8 text-center text-sm text-slate-400">
+            {tr(i18n, "common.loading")}
+          </div>
         ) : state.keys.length === 0 ? (
-          <div class="p-8 text-center text-sm text-slate-500">No API keys yet.</div>
+          <div class="p-8 text-center text-sm text-slate-500">
+            {tr(i18n, "keys.empty")}
+          </div>
         ) : (
           <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
             <thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
-                <th class="px-4 py-3">Name</th>
-                <th class="px-4 py-3">Prefix</th>
-                <th class="px-4 py-3">Role</th>
-                <th class="px-4 py-3">Last used</th>
-                <th class="px-4 py-3">Created</th>
+                <th class="px-4 py-3">{tr(i18n, "common.name")}</th>
+                <th class="px-4 py-3">{tr(i18n, "keys.colPrefix")}</th>
+                <th class="px-4 py-3">{tr(i18n, "common.role")}</th>
+                <th class="px-4 py-3">{tr(i18n, "keys.colLastUsed")}</th>
+                <th class="px-4 py-3">{tr(i18n, "common.created")}</th>
                 <th class="px-4 py-3"></th>
               </tr>
             </thead>
@@ -237,7 +245,7 @@ export default component$(() => {
                   <td class="px-4 py-3 text-slate-500">
                     {k.last_used_at
                       ? new Date(k.last_used_at).toLocaleDateString()
-                      : "Never"}
+                      : tr(i18n, "keys.never")}
                   </td>
                   <td class="px-4 py-3 text-slate-500">
                     {new Date(k.created_at).toLocaleDateString()}
@@ -248,7 +256,7 @@ export default component$(() => {
                       class="text-xs font-medium text-red-600 hover:underline"
                       onClick$={() => revoke(k.id)}
                     >
-                      Revoke
+                      {tr(i18n, "keys.revoke")}
                     </button>
                   </td>
                 </tr>

@@ -14,24 +14,26 @@ import {
 import { api, qrUrl, ApiRequestError } from "../../../../../lib/api";
 import { BarChart } from "../../../../../components/bar-chart";
 import { FlagsContext } from "../../../../../lib/flags";
+import { tr, useI18n } from "../../../../../i18n";
 import type { Analytics, Breakdown, Link as LinkObj } from "../../../../../lib/types";
 
 type Range = "7d" | "30d" | "1y";
 
 const Breakdowns = component$<{ title: string; rows: Breakdown[] }>(
   ({ title, rows }) => {
+    const i18n = useI18n();
     const max = Math.max(1, ...rows.map((r) => r.count));
     return (
       <div class="card p-5">
         <h3 class="text-sm font-semibold text-slate-900">{title}</h3>
         {rows.length === 0 ? (
-          <p class="mt-3 text-sm text-slate-400">No data yet.</p>
+          <p class="mt-3 text-sm text-slate-400">{tr(i18n, "link.noData")}</p>
         ) : (
           <ul class="mt-3 space-y-2">
             {rows.slice(0, 6).map((r) => (
               <li key={r.key}>
                 <div class="flex items-center justify-between text-sm">
-                  <span class="truncate text-slate-700">{r.key || "Unknown"}</span>
+                  <span class="truncate text-slate-700">{r.key || tr(i18n, "link.unknown")}</span>
                   <span class="text-slate-500">{r.count.toLocaleString()}</span>
                 </div>
                 <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
@@ -53,6 +55,7 @@ export default component$(() => {
   const loc = useLocation();
   const nav = useNavigate();
   const flags = useContext(FlagsContext);
+  const i18n = useI18n();
   const id = loc.params.id;
 
   const state = useStore<{
@@ -70,6 +73,9 @@ export default component$(() => {
     error: "",
     copied: false,
   });
+
+  // Resolved during render so the handler captures a string, not the store.
+  const msgLoadFailed = tr(i18n, "link.loadFailed");
 
   const load = $(async () => {
     state.loading = true;
@@ -89,8 +95,7 @@ export default component$(() => {
         nav("/login");
         return;
       }
-      state.error =
-        e instanceof ApiRequestError ? e.error.message : "Failed to load link.";
+      state.error = e instanceof ApiRequestError ? e.error.message : msgLoadFailed;
     } finally {
       state.loading = false;
     }
@@ -116,11 +121,13 @@ export default component$(() => {
   return (
     <div class="mx-auto max-w-6xl px-4 py-8">
       <Link href="/dashboard" class="text-sm text-slate-500 hover:text-primary-600">
-        ← Back to links
+        {tr(i18n, "link.back")}
       </Link>
 
       {state.loading ? (
-        <div class="mt-8 card p-10 text-center text-sm text-slate-400">Loading…</div>
+        <div class="mt-8 card p-10 text-center text-sm text-slate-400">
+          {tr(i18n, "common.loading")}
+        </div>
       ) : state.error ? (
         <div class="mt-8 card p-10 text-center text-sm text-red-600">
           {state.error}
@@ -146,7 +153,7 @@ export default component$(() => {
                   class="text-xs text-slate-400 hover:text-primary-600"
                   onClick$={copy}
                 >
-                  {state.copied ? "Copied!" : "Copy"}
+                  {state.copied ? tr(i18n, "common.copied") : tr(i18n, "common.copy")}
                 </button>
                 <span class="badge bg-slate-100 text-slate-600">
                   {state.link.redirect_type}
@@ -184,11 +191,10 @@ export default component$(() => {
             {!flags["analytics-dashboard"] ? (
               <div class="card p-6 text-center lg:col-span-2">
                 <p class="font-medium text-slate-800">
-                  Analytics aren't available yet
+                  {tr(i18n, "link.analyticsUnavailableTitle")}
                 </p>
                 <p class="mt-1 text-sm text-slate-500">
-                  Clicks are still being tracked — the dashboard is rolling out
-                  gradually.
+                  {tr(i18n, "link.analyticsUnavailableBody")}
                 </p>
               </div>
             ) : (
@@ -199,7 +205,7 @@ export default component$(() => {
                     {(state.analytics?.summary.clicks ?? 0).toLocaleString()}
                   </div>
                   <div class="text-xs uppercase tracking-wide text-slate-400">
-                    Clicks
+                    {tr(i18n, "common.clicks")}
                   </div>
                 </div>
                 {typeof state.analytics?.summary.uniques === "number" && (
@@ -208,7 +214,7 @@ export default component$(() => {
                       {state.analytics.summary.uniques.toLocaleString()}
                     </div>
                     <div class="text-xs uppercase tracking-wide text-slate-400">
-                      Uniques
+                      {tr(i18n, "link.uniques")}
                     </div>
                   </div>
                 )}
@@ -222,11 +228,11 @@ export default component$(() => {
             {/* QR */}
             <div class="card flex flex-col items-center p-6">
               <h3 class="self-start text-sm font-semibold text-slate-900">
-                QR code
+                {tr(i18n, "link.qrCode")}
               </h3>
               <img
                 src={qrUrl(state.link.short_code, 512)}
-                alt={`QR code for ${state.link.short_url}`}
+                alt={tr(i18n, "link.qrAlt", { url: state.link.short_url })}
                 width={180}
                 height={180}
                 class="mt-4 h-44 w-44 rounded-lg border border-slate-200"
@@ -236,7 +242,7 @@ export default component$(() => {
                 download={`${state.link.short_code}-qr.png`}
                 class="btn-secondary mt-4 w-full"
               >
-                Download PNG
+                {tr(i18n, "link.downloadPng")}
               </a>
             </div>
           </div>
@@ -245,12 +251,15 @@ export default component$(() => {
           {flags["analytics-dashboard"] && (
             <div class="mt-6 grid gap-6 md:grid-cols-3">
               <Breakdowns
-                title="By country"
+                title={tr(i18n, "link.byCountry")}
                 rows={state.analytics?.by_country ?? []}
               />
-              <Breakdowns title="By device" rows={state.analytics?.by_device ?? []} />
               <Breakdowns
-                title="By referrer"
+                title={tr(i18n, "link.byDevice")}
+                rows={state.analytics?.by_device ?? []}
+              />
+              <Breakdowns
+                title={tr(i18n, "link.byReferrer")}
                 rows={state.analytics?.by_referrer ?? []}
               />
             </div>

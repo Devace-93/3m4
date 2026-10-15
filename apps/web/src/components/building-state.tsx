@@ -1,11 +1,14 @@
 import { component$ } from "@builder.io/qwik";
+import { tr, useI18n } from "../i18n";
 
 /**
  * Full-page "we're building" curtain, shown when the `site-building` feature
  * flag is ON (see routes/layout.tsx). Short links keep redirecting — only the
  * web UI is curtained.
  */
-export const BuildingState = component$(() => (
+export const BuildingState = component$(() => {
+  const i18n = useI18n();
+  return (
   <div class="grid min-h-screen place-items-center bg-slate-50 px-4">
     <div class="text-center">
       <svg
@@ -57,13 +60,13 @@ export const BuildingState = component$(() => (
       </svg>
 
       <h1 class="mt-6 text-3xl font-bold tracking-tight text-slate-900">
-        We're building 3m4
+        {tr(i18n, "building.title")}
       </h1>
       <p class="mx-auto mt-3 max-w-md text-slate-500">
-        Short links with privacy-friendly click analytics. The site isn't open
-        yet — but your existing short links keep redirecting just fine.
+        {tr(i18n, "building.body")}
       </p>
-      <p class="mt-8 text-xs text-slate-400">3m4.net · coming soon</p>
+      <p class="mt-8 text-xs text-slate-400">{tr(i18n, "building.footer")}</p>
     </div>
   </div>
-));
+  );
+});

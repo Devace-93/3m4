@@ -11,11 +11,13 @@ import { capture } from "../../../lib/analytics";
 import { UsageBar } from "../../../components/usage-bar";
 import { EarlyAccessBanner } from "../../../components/early-access-banner";
 import { FlagsContext } from "../../../lib/flags";
+import { tr, useI18n } from "../../../i18n";
 import type { Link as LinkObj, MeResponse } from "../../../lib/types";
 
 export default component$(() => {
   const nav = useNavigate();
   const flags = useContext(FlagsContext);
+  const i18n = useI18n();
   const state = useStore<{
     links: LinkObj[];
     me: MeResponse | null;
@@ -35,6 +37,11 @@ export default component$(() => {
 
   const copied = useStore<{ id: string }>({ id: "" });
 
+  // Resolved during render so handlers capture strings, not the i18n store.
+  const msgLoadFailed = tr(i18n, "dash.loadFailed");
+  const msgCreateFailed = tr(i18n, "dash.createFailed");
+  const msgLimitReached = tr(i18n, "dash.limitReached");
+
   const load = $(async () => {
     state.loading = true;
     state.loadError = "";
@@ -47,8 +54,7 @@ export default component$(() => {
         nav("/login");
         return;
       }
-      state.loadError =
-        e instanceof ApiRequestError ? e.error.message : "Failed to load dashboard.";
+      state.loadError = e instanceof ApiRequestError ? e.error.message : msgLoadFailed;
     } finally {
       state.loading = false;
     }
@@ -80,11 +86,9 @@ export default component$(() => {
     } catch (e) {
       if (e instanceof ApiRequestError && e.status === 402) {
         form.limitReached = true;
-        form.error =
-          e.error.message || "You've hit your monthly link limit on this plan.";
+        form.error = e.error.message || msgLimitReached;
       } else {
-        form.error =
-          e instanceof ApiRequestError ? e.error.message : "Could not create link.";
+        form.error = e instanceof ApiRequestError ? e.error.message : msgCreateFailed;
       }
     } finally {
       form.submitting = false;
@@ -108,15 +112,16 @@ export default component$(() => {
     <div class="mx-auto max-w-6xl px-4 py-8">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900">Your links</h1>
+          <h1 class="text-2xl font-bold text-slate-900">{tr(i18n, "dash.title")}</h1>
           {state.me && (
             <p class="text-sm text-slate-500">
               {state.me.account.name} ·{" "}
               {flags["early-access"] ? (
-                <span>Early access</span>
+                <span>{tr(i18n, "dash.earlyAccess")}</span>
               ) : (
                 <>
-                  <span class="capitalize">{state.me.account.plan}</span> plan
+                  <span class="capitalize">{state.me.account.plan}</span>{" "}
+                  {tr(i18n, "dash.planSuffix")}
                 </>
               )}
             </p>
@@ -124,7 +129,7 @@ export default component$(() => {
         </div>
         {flags.billing && !flags["early-access"] && (
           <Link href="/dashboard/billing" class="btn-secondary">
-            Upgrade plan
+            {tr(i18n, "dash.upgradePlan")}
           </Link>
         )}
       </div>
@@ -138,14 +143,14 @@ export default component$(() => {
         <div class="mt-6 grid gap-6 sm:grid-cols-2">
           <div class="card p-5">
             <UsageBar
-              label="Links this period"
+              label={tr(i18n, "dash.linksThisPeriod")}
               used={usage.links_created}
               limit={limits.links_per_month}
             />
           </div>
           <div class="card p-5">
             <UsageBar
-              label="Tracked clicks this period"
+              label={tr(i18n, "dash.clicksThisPeriod")}
               used={usage.tracked_clicks}
               limit={limits.tracked_clicks_per_month}
             />
@@ -157,15 +162,15 @@ export default component$(() => {
       {!flags["link-creation"] ? (
         <div class="mt-6 card p-6 text-center">
           <h2 class="text-lg font-semibold text-slate-800">
-            Link creation is temporarily unavailable
+            {tr(i18n, "dash.creationUnavailableTitle")}
           </h2>
           <p class="mt-1 text-sm text-slate-500">
-            Your existing short links keep working and redirecting as usual.
+            {tr(i18n, "dash.creationUnavailableBody")}
           </p>
         </div>
       ) : (
       <div class="mt-6 card p-6">
-        <h2 class="text-lg font-semibold text-slate-900">Create link</h2>
+        <h2 class="text-lg font-semibold text-slate-900">{tr(i18n, "dash.createLink")}</h2>
         {form.error && (
           <div
             class={[
@@ -178,7 +183,7 @@ export default component$(() => {
             {form.error}{" "}
             {form.limitReached && !flags["early-access"] && (
               <Link href="/dashboard/billing" class="font-semibold underline">
-                Upgrade your plan
+                {tr(i18n, "dash.upgradeYourPlan")}
               </Link>
             )}
           </div>
@@ -190,13 +195,13 @@ export default component$(() => {
         >
           <div class="sm:col-span-2">
             <label class="label" for="dest">
-              Destination URL
+              {tr(i18n, "dash.destinationUrl")}
             </label>
             <input
               id="dest"
               type="url"
               required
-              placeholder="https://example.com/very/long/url"
+              placeholder={tr(i18n, "dash.destinationPlaceholder")}
               class="input"
               value={form.destination_url}
               onInput$={(_, el) => (form.destination_url = el.value)}
@@ -205,15 +210,17 @@ export default component$(() => {
           {flags["custom-slugs"] && (
             <div>
               <label class="label" for="slug">
-                Custom slug{" "}
+                {tr(i18n, "dash.customSlug")}{" "}
                 <span class="text-slate-400">
-                  {flags["early-access"] ? "(optional)" : "(optional, paid)"}
+                  {flags["early-access"]
+                    ? tr(i18n, "common.optional")
+                    : tr(i18n, "dash.optionalPaid")}
                 </span>
               </label>
               <input
                 id="slug"
                 type="text"
-                placeholder="my-link"
+                placeholder={tr(i18n, "dash.slugPlaceholder")}
                 class="input"
                 disabled={state.me ? !state.me.limits.custom_slugs : false}
                 value={form.custom_slug}
@@ -221,7 +228,7 @@ export default component$(() => {
               />
               {state.me && !state.me.limits.custom_slugs && (
                 <p class="mt-1 text-xs text-slate-400">
-                  Available on paid plans.
+                  {tr(i18n, "dash.paidOnly")}
                   {flags.billing && (
                     <>
                       {" "}
@@ -229,7 +236,7 @@ export default component$(() => {
                         href="/dashboard/billing"
                         class="font-medium text-primary-600 hover:underline"
                       >
-                        Upgrade
+                        {tr(i18n, "dash.upgrade")}
                       </Link>
                     </>
                   )}
@@ -239,7 +246,8 @@ export default component$(() => {
           )}
           <div>
             <label class="label" for="title">
-              Title <span class="text-slate-400">(optional)</span>
+              {tr(i18n, "dash.titleLabel")}{" "}
+              <span class="text-slate-400">{tr(i18n, "common.optional")}</span>
             </label>
             <input
               id="title"
@@ -251,7 +259,7 @@ export default component$(() => {
           </div>
           <div>
             <label class="label" for="rtype">
-              Redirect type
+              {tr(i18n, "dash.redirectType")}
             </label>
             <select
               id="rtype"
@@ -261,8 +269,8 @@ export default component$(() => {
                 (form.redirect_type = Number(el.value) as 301 | 302)
               }
             >
-              <option value="302">302 — Temporary (tracks every click)</option>
-              <option value="301">301 — Permanent (cached by browsers)</option>
+              <option value="302">{tr(i18n, "dash.redirect302")}</option>
+              <option value="301">{tr(i18n, "dash.redirect301")}</option>
             </select>
           </div>
           <div class="flex items-end">
@@ -271,7 +279,7 @@ export default component$(() => {
               class="btn-primary w-full sm:w-auto"
               disabled={form.submitting}
             >
-              {form.submitting ? "Creating…" : "Create link"}
+              {form.submitting ? tr(i18n, "common.creating") : tr(i18n, "dash.createLink")}
             </button>
           </div>
         </form>
@@ -281,22 +289,24 @@ export default component$(() => {
       {/* Links table */}
       <div class="mt-6 card overflow-hidden">
         {state.loading ? (
-          <div class="p-10 text-center text-sm text-slate-400">Loading links…</div>
+          <div class="p-10 text-center text-sm text-slate-400">
+            {tr(i18n, "dash.loadingLinks")}
+          </div>
         ) : state.loadError ? (
           <div class="p-10 text-center text-sm text-red-600">{state.loadError}</div>
         ) : state.links.length === 0 ? (
           <div class="p-10 text-center text-sm text-slate-500">
-            No links yet. Create your first one above.
+            {tr(i18n, "dash.empty")}
           </div>
         ) : (
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
               <thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th class="px-4 py-3">Short URL</th>
-                  <th class="px-4 py-3">Destination</th>
-                  <th class="px-4 py-3 text-right">Clicks</th>
-                  <th class="px-4 py-3">Created</th>
+                  <th class="px-4 py-3">{tr(i18n, "dash.colShortUrl")}</th>
+                  <th class="px-4 py-3">{tr(i18n, "dash.colDestination")}</th>
+                  <th class="px-4 py-3 text-right">{tr(i18n, "common.clicks")}</th>
+                  <th class="px-4 py-3">{tr(i18n, "common.created")}</th>
                   <th class="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -315,9 +325,9 @@ export default component$(() => {
                           type="button"
                           class="text-xs text-slate-400 hover:text-primary-600"
                           onClick$={() => copy(l)}
-                          title="Copy short URL"
+                          title={tr(i18n, "dash.copyShortUrl")}
                         >
-                          {copied.id === l.id ? "Copied!" : "Copy"}
+                          {copied.id === l.id ? tr(i18n, "common.copied") : tr(i18n, "common.copy")}
                         </button>
                       </div>
                       {l.title && (
@@ -346,7 +356,7 @@ export default component$(() => {
                           href={`/dashboard/links/${l.id}`}
                           class="text-xs font-medium text-slate-500 hover:text-primary-600"
                         >
-                          Analytics →
+                          {tr(i18n, "dash.analytics")}
                         </Link>
                       )}
                     </td>
