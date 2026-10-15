@@ -202,14 +202,16 @@ export default component$(() => {
                     Clicks
                   </div>
                 </div>
-                <div>
-                  <div class="text-3xl font-bold text-slate-900">
-                    {(state.analytics?.summary.uniques ?? 0).toLocaleString()}
+                {typeof state.analytics?.summary.uniques === "number" && (
+                  <div>
+                    <div class="text-3xl font-bold text-slate-900">
+                      {state.analytics.summary.uniques.toLocaleString()}
+                    </div>
+                    <div class="text-xs uppercase tracking-wide text-slate-400">
+                      Uniques
+                    </div>
                   </div>
-                  <div class="text-xs uppercase tracking-wide text-slate-400">
-                    Uniques
-                  </div>
-                </div>
+                )}
               </div>
               <div class="mt-6">
                 <BarChart series={state.analytics?.series ?? []} />
@@ -223,14 +225,14 @@ export default component$(() => {
                 QR code
               </h3>
               <img
-                src={qrUrl(state.link.id, 512)}
+                src={qrUrl(state.link.short_code, 512)}
                 alt={`QR code for ${state.link.short_url}`}
                 width={180}
                 height={180}
                 class="mt-4 h-44 w-44 rounded-lg border border-slate-200"
               />
               <a
-                href={qrUrl(state.link.id, 1024)}
+                href={qrUrl(state.link.short_code, 1024)}
                 download={`${state.link.short_code}-qr.png`}
                 class="btn-secondary mt-4 w-full"
               >

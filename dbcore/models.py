@@ -201,6 +201,9 @@ class ApiKey(Base):
     id: Mapped[uuid.UUID] = _pk()
     account_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("accounts.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String(120))
+    # RBAC role: viewer | editor | admin (see packages/shared/api_key_roles.json).
+    # Keys created before roles existed keep full access ("admin").
+    role: Mapped[str] = mapped_column(String(20), nullable=False, default="admin", server_default="admin")
     prefix: Mapped[str] = mapped_column(String(16), index=True)        # shown in UI, e.g. m4_live_AbCd
     key_hash: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
     last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -228,3 +231,23 @@ class ReservedSlug(Base):
     # optional: a reserved slug that itself performs a redirect (e.g. /resume)
     redirect_url: Mapped[str | None] = mapped_column(Text)
     redirect_status: Mapped[int | None] = mapped_column(Integer)
+
+
+class AuditEvent(Base):
+    """Append-only audit trail (see dbcore/audit.py). Never updated or deleted
+    by application code; retention is an ops concern."""
+
+    __tablename__ = "audit_events"
+    __table_args__ = (Index("ix_audit_events_account_ts", "account_id", "ts"),)
+
+    id: Mapped[uuid.UUID] = _pk()
+    account_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("accounts.id", ondelete="CASCADE"), nullable=False)
+    ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    actor_type: Mapped[str] = mapped_column(String(20), nullable=False)     # user | api_key | system
+    actor_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))  # user id or api key id
+    actor_label: Mapped[str | None] = mapped_column(String(120))            # e.g. key prefix
+    action: Mapped[str] = mapped_column(String(60), nullable=False)         # link.create, auth.denied, ...
+    target_type: Mapped[str | None] = mapped_column(String(40))
+    target_id: Mapped[str | None] = mapped_column(String(64))
+    outcome: Mapped[str] = mapped_column(String(20), nullable=False, default="ok", server_default="ok")  # ok | denied | error
+    meta: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict, server_default="{}")

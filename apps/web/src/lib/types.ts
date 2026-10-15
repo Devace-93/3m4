@@ -79,17 +79,21 @@ export interface Breakdown {
 }
 
 export interface Analytics {
-  summary: { clicks: number; uniques: number };
+  /** `uniques` is null when the backend does not track them (privacy). */
+  summary: { clicks: number; uniques: number | null };
   series: SeriesPoint[];
   by_country: Breakdown[];
   by_device: Breakdown[];
   by_referrer: Breakdown[];
 }
 
+export type ApiKeyRole = "viewer" | "editor" | "admin";
+
 export interface ApiKey {
   id: string;
   name?: string;
   prefix: string;
+  role: ApiKeyRole;
   last_used_at?: string | null;
   created_at: string;
 }

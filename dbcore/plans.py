@@ -42,3 +42,18 @@ def resolve_plan_from_entitlements(entitlements: list[str]) -> str:
         if ent in entitlements:
             return mapping[ent]
     return "free"
+
+
+def effective_plan_limits(plan: str, distinct_id: str = "anonymous") -> dict:
+    """Limits that actually apply to an account right now.
+
+    While the ``early-access`` flag is ON every account gets the ``enterprise``
+    limits (everything unlimited, custom slugs on) regardless of its plan, so
+    the product can be used in full before billing is switched on. Callers
+    that *enforce* limits must use this, never :func:`plan_limits` directly.
+    """
+    from .feature_flags import is_enabled  # local import: avoid a cycle at import time
+
+    if is_enabled("early-access", distinct_id):
+        return plan_limits("enterprise")
+    return plan_limits(plan)

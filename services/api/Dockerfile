@@ -18,6 +18,8 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY dbcore /app/dbcore
 COPY packages/shared /app/packages/shared
 COPY services/api/api /app/api
+# Alembic migrations (run by the `migrate` compose service via dbcore.cli).
+COPY db /app/db
 
 EXPOSE 5000
 

@@ -14,7 +14,7 @@ from sqlalchemy import select
 from dbcore.db import session_scope
 from dbcore.feature_flags import resolve_all
 from dbcore.models import Account, Membership, RefreshToken, User
-from dbcore.plans import plan_limits
+from dbcore.plans import effective_plan_limits
 from dbcore.posthog_client import capture, group_identify
 from dbcore.usage import get_or_create_counter
 
@@ -163,7 +163,7 @@ def me():
         account = session.get(Account, g.account_id)
         if user is None or account is None:
             raise ApiError(404, "not_found", "User or account not found.")
-        limits = plan_limits(account.plan)
+        limits = effective_plan_limits(account.plan, str(account.id))
         counter = get_or_create_counter(session, account.id)
         body = {
             "user": serialize_user(user),

@@ -1,0 +1,29 @@
+{
+  "_comment": "Single source of truth for API-key roles and the scopes they grant. Consumed by the Python API (dbcore/rbac.py enforces scopes per endpoint), the Qwik dashboard (role picker on /dashboard/settings) and the MCP server (filters which tools a key can see and call). Keep roles additive: each role is a superset of the previous one.",
+  "default_role": "editor",
+  "scopes": {
+    "links:read": "List and read links, QR codes.",
+    "links:write": "Create and update links.",
+    "links:delete": "Delete links (destructive).",
+    "analytics:read": "Per-link and account-wide click analytics.",
+    "usage:read": "Monthly usage counters and plan limits.",
+    "audit:read": "Read the account audit log."
+  },
+  "roles": {
+    "viewer": {
+      "label": "Viewer",
+      "description": "Read-only: links, analytics and usage.",
+      "scopes": ["links:read", "analytics:read", "usage:read"]
+    },
+    "editor": {
+      "label": "Editor",
+      "description": "Viewer, plus create and update links.",
+      "scopes": ["links:read", "links:write", "analytics:read", "usage:read"]
+    },
+    "admin": {
+      "label": "Admin",
+      "description": "Editor, plus delete links and read the audit log.",
+      "scopes": ["links:read", "links:write", "links:delete", "analytics:read", "usage:read", "audit:read"]
+    }
+  }
+}

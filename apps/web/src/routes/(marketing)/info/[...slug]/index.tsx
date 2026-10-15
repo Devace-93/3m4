@@ -1,6 +1,7 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useContext } from "@builder.io/qwik";
 import { useLocation, Link, type DocumentHead } from "@builder.io/qwik-city";
 import { PricingTable } from "../../../../components/pricing-table";
+import { FlagsContext } from "../../../../lib/flags";
 
 /**
  * Catch-all info section. Today it renders a real /info/pricing view and a
@@ -9,18 +10,40 @@ import { PricingTable } from "../../../../components/pricing-table";
  */
 export default component$(() => {
   const loc = useLocation();
+  const flags = useContext(FlagsContext);
   const slug = (loc.params.slug || "").replace(/\/$/, "");
 
   if (slug === "pricing") {
+    const early = flags["early-access"];
     return (
       <div class="mx-auto max-w-6xl px-4 py-16">
         <div class="text-center">
-          <h1 class="text-4xl font-bold text-slate-900">Simple, honest pricing</h1>
+          <h1 class="text-4xl font-bold text-slate-900">
+            {early ? "Planned pricing" : "Simple, honest pricing"}
+          </h1>
           <p class="mx-auto mt-3 max-w-2xl text-slate-600">
-            Start free. Upgrade when you need more links, clicks, domains, or
-            longer retention. Self-host for unlimited everything.
+            {early
+              ? "These are the tiers we intend to introduce after early access. Nothing here applies yet."
+              : "Start free. Upgrade when you need more links, clicks, domains, or longer retention. Self-host for unlimited everything."}
           </p>
         </div>
+
+        {early && (
+          <div class="mx-auto mt-8 max-w-3xl rounded-xl border border-primary-200 bg-primary-50 p-6 text-center" data-testid="early-access-pricing">
+            <p class="text-lg font-semibold text-primary-900">
+              Right now every account has full access, free.
+            </p>
+            <p class="mt-2 text-sm text-primary-900/80">
+              Unlimited links and tracked clicks, custom slugs, long retention,
+              the API and the MCP server. When plans arrive we will announce it
+              on the blog and by email before any limit applies to an existing
+              account. Prices and limits below may still change.
+            </p>
+            <Link href="/blog/what-paid-plans-will-include" class="btn-primary mt-4">
+              Read what paid plans will include
+            </Link>
+          </div>
+        )}
 
         <div class="mt-12">
           <PricingTable />
@@ -45,6 +68,7 @@ export default component$(() => {
           All prices in USD. Annual billing saves ~20%. Limits are enforced per
           billing period; over-limit links are blocked, over-limit clicks keep
           redirecting (we just stop counting).
+          {early && " None of this is enforced during early access."}
         </p>
       </div>
     );

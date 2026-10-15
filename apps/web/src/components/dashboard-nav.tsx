@@ -21,7 +21,7 @@ export const DashboardNav = component$(() => {
 
   const visible = items.filter((it) => {
     if (it.flag && !flags[it.flag]) return false;
-    if (it.href === "/dashboard/billing" && !BILLING_ENABLED) return false;
+    if (it.href === "/dashboard/billing" && (!BILLING_ENABLED || flags["early-access"])) return false;
     return true;
   });
 
@@ -44,9 +44,9 @@ export const DashboardNav = component$(() => {
   return (
     <header class="border-b border-slate-200 bg-white">
       <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <div class="flex items-center gap-8">
+        <div class="flex items-center gap-3 sm:gap-8">
           <Logo href="/dashboard" />
-          <div class="hidden items-center gap-1 md:flex">
+          <div class="flex items-center gap-1">
             {visible.map((it) => {
               const active =
                 path === it.href ||

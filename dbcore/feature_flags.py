@@ -12,11 +12,29 @@ Resolution order (see PROJECT plan / .lavish/feature-flags-plan.html):
 
 Flag checks must never add request latency or raise: any failure falls back
 to the registry default.
+
+Local override (step 0): ``FEATURE_FLAG_OVERRIDES="public-api=on,signups=off"``
+pins flags regardless of PostHog. Meant for local development and CI, where
+the PostHog project is the production one and you still need e.g. the public
+API on. Never set it in production.
 """
 from __future__ import annotations
 
+import os
+
 from ._shared import load_shared
 from .config import config
+
+
+def _overrides() -> dict[str, bool]:
+    raw = os.getenv("FEATURE_FLAG_OVERRIDES", "").strip()
+    out: dict[str, bool] = {}
+    for item in raw.split(","):
+        if "=" not in item:
+            continue
+        key, value = item.split("=", 1)
+        out[key.strip()] = value.strip().lower() in {"1", "true", "yes", "on"}
+    return out
 
 _client = None
 _client_ready = False
@@ -55,6 +73,9 @@ def is_enabled(key: str, distinct_id: str = "anonymous") -> bool:
     if key not in reg:
         # Unknown flag: fail closed so a typo can't silently expose a feature.
         return False
+    overrides = _overrides()
+    if key in overrides:
+        return overrides[key]
     if not config.posthog_api_key:
         # Self-host: full product, no PostHog dependency. Inverse-polarity
         # flags (e.g. site-building, where ON hides the product) opt out via

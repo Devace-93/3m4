@@ -32,6 +32,9 @@ class Config:
     app_base_url: str = os.getenv("APP_BASE_URL", "http://localhost:8080")
     dashboard_url: str = os.getenv("DASHBOARD_URL", "http://localhost:8080")
     short_domain: str = os.getenv("SHORT_DOMAIN", "localhost:8080")
+    # Scheme used when rendering short URLs. Prod is https (Caddy auto-TLS);
+    # local Caddy serves plain http on :8080, so set SHORT_URL_SCHEME=http there.
+    short_url_scheme: str = os.getenv("SHORT_URL_SCHEME", "https").strip().lower() or "https"
     resume_redirect_url: str = os.getenv("RESUME_REDIRECT_URL", "https://enrique-magallon.com")
 
     # billing

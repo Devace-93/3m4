@@ -1,32 +1,34 @@
 """Links blueprint: CRUD, QR codes, and per-link analytics.
 
 These endpoints accept EITHER a dashboard JWT OR a public API key. Everything is
-scoped to ``g.account_id`` so one account can never see another's links.
+scoped to ``g.account_id`` so one account can never see another's links, and
+each endpoint declares the RBAC scope it needs (``links:read`` / ``links:write``
+/ ``links:delete``). Mutations are written to the audit log in the same
+transaction as the change.
 """
 from __future__ import annotations
 
 import uuid
 from datetime import datetime, timedelta, timezone
-from io import BytesIO
-
-import qrcode
-from flask import Blueprint, Response, g, jsonify, request
+from flask import Blueprint, g, jsonify, request
 from sqlalchemy import func, or_, select
 
+from dbcore import audit
 from dbcore.codegen import generate_code, validate_custom_slug
 from dbcore.config import config
 from dbcore.db import session_scope
 from dbcore.models import Account, ClickDailyRollup, Link
 from dbcore.feature_flags import is_enabled
-from dbcore.plans import plan_limits, within_limit
+from dbcore.plans import effective_plan_limits, within_limit
 from dbcore.posthog_client import capture
 from dbcore.usage import get_or_create_counter
 
-from ..auth_utils import require_auth_or_api_key
+from ..auth_utils import actor, require_auth_or_api_key, require_scope
 from ..errors import ApiError
 from ..extensions import limiter, public_api_key_func
 from ..flags import require_flag
 from ..serializers import counts_to_list, range_to_days, serialize_link, short_url
+from .qr import clamp_size, png_response, render_qr_png
 
 bp = Blueprint("links", __name__)
 
@@ -64,6 +66,7 @@ def _get_owned_link(session, link_id_str: str) -> Link:
 @bp.get("")
 @_public_limit
 @require_auth_or_api_key
+@require_scope("links:read")
 def list_links():
     page = max(int(request.args.get("page", 1)), 1)
     per_page = min(max(int(request.args.get("per_page", 20)), 1), 100)
@@ -92,6 +95,7 @@ def list_links():
 @bp.post("")
 @_public_limit
 @require_auth_or_api_key
+@require_scope("links:write")
 @require_flag("link-creation")
 def create_link():
     data = request.get_json(silent=True) or {}
@@ -112,7 +116,7 @@ def create_link():
     with session_scope() as session:
         account = session.get(Account, g.account_id)
         plan = account.plan
-        limit = plan_limits(plan)
+        limit = effective_plan_limits(plan, str(account.id))
 
         # ---- Enforce the monthly LINK limit (hard block) -------------------
         counter = get_or_create_counter(session, account.id)
@@ -171,6 +175,15 @@ def create_link():
         counter.links_created += 1
         session.flush()
         body = serialize_link(link)
+        audit.record(
+            session,
+            account_id=account.id,
+            action="link.create",
+            target_type="link",
+            target_id=str(link.id),
+            meta={"short_code": short_code, "destination_url": destination_url, "is_custom": is_custom},
+            **actor(),
+        )
 
     capture(
         str(g.account_id),
@@ -187,6 +200,7 @@ def create_link():
 @bp.get("/<link_id>")
 @_public_limit
 @require_auth_or_api_key
+@require_scope("links:read")
 def get_link(link_id):
     with session_scope() as session:
         link = _get_owned_link(session, link_id)
@@ -197,6 +211,7 @@ def get_link(link_id):
 @bp.patch("/<link_id>")
 @_public_limit
 @require_auth_or_api_key
+@require_scope("links:write")
 def patch_link(link_id):
     data = request.get_json(silent=True) or {}
     with session_scope() as session:
@@ -220,15 +235,34 @@ def patch_link(link_id):
             link.expires_at = _parse_expires_at(data.get("expires_at"))
 
         body = serialize_link(link)
+        audit.record(
+            session,
+            account_id=g.account_id,
+            action="link.update",
+            target_type="link",
+            target_id=str(link.id),
+            meta={"short_code": link.short_code, "fields": sorted(data.keys())},
+            **actor(),
+        )
     return jsonify(body)
 
 
 @bp.delete("/<link_id>")
 @_public_limit
 @require_auth_or_api_key
+@require_scope("links:delete")
 def delete_link(link_id):
     with session_scope() as session:
         link = _get_owned_link(session, link_id)
+        audit.record(
+            session,
+            account_id=g.account_id,
+            action="link.delete",
+            target_type="link",
+            target_id=str(link.id),
+            meta={"short_code": link.short_code, "destination_url": link.destination_url},
+            **actor(),
+        )
         session.delete(link)
     return "", 204
 
@@ -239,33 +273,13 @@ def delete_link(link_id):
 @bp.get("/<link_id>/qr.png")
 @_public_limit
 @require_auth_or_api_key
+@require_scope("links:read")
 def link_qr(link_id):
-    # Clamp the requested size to a sane pixel range.
-    try:
-        size = int(request.args.get("size", 512))
-    except ValueError:
-        size = 512
-    size = min(max(size, 64), 2048)
-
+    size = clamp_size(request.args.get("size", 512))
     with session_scope() as session:
         link = _get_owned_link(session, link_id)
         url = short_url(link.short_code)
-
-    # Build the QR, then resize to the exact requested square (nearest-neighbour
-    # keeps the modules crisp).
-    qr = qrcode.QRCode(border=2, box_size=10)
-    qr.add_data(url)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
-    img = img.resize((size, size))
-
-    buf = BytesIO()
-    img.save(buf, format="PNG")
-    return Response(
-        buf.getvalue(),
-        mimetype="image/png",
-        headers={"Cache-Control": "public, max-age=86400"},
-    )
+    return png_response(render_qr_png(url, size))
 
 
 # --------------------------------------------------------------------------- #
@@ -274,6 +288,7 @@ def link_qr(link_id):
 @bp.get("/<link_id>/analytics")
 @_public_limit
 @require_auth_or_api_key
+@require_scope("analytics:read")
 @require_flag("analytics-dashboard", status=404)
 def link_analytics(link_id):
     days = range_to_days(request.args.get("range"))
