@@ -9,6 +9,8 @@ import {
 import { routeLoader$ } from "@builder.io/qwik-city";
 import { initAnalytics } from "../lib/analytics";
 import { BuildingState } from "../components/building-state";
+import { I18nContext, initI18n, type I18nState } from "../i18n";
+import { DEFAULT_LANG } from "../i18n/langs";
 import { FlagsContext, type FeatureFlags } from "../lib/flags";
 import { fetchServerFlags } from "../lib/flags.server";
 
@@ -31,6 +33,14 @@ export default component$(() => {
   const serverFlags = useServerFlags();
   const flags = useStore<FeatureFlags>({ ...serverFlags.value });
   useContextProvider(FlagsContext, flags);
+  const i18n = useStore<I18nState>({ lang: DEFAULT_LANG, strings: {} });
+  useContextProvider(I18nContext, i18n);
+
+  // Resolve the viewer's locale and load its catalog (SSR renders English).
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(() => {
+    initI18n(i18n);
+  });
 
   // Keep the store in sync when the loader re-runs on client-side navigation.
   useTask$(({ track }) => {

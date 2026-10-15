@@ -5,6 +5,9 @@ import { clearTokens, getRefreshToken, isAuthenticated } from "../lib/auth";
 import { api } from "../lib/api";
 import { resetAnalytics } from "../lib/analytics";
 import { FlagsContext } from "../lib/flags";
+import { tr, useI18n } from "../i18n";
+import { LanguagePicker } from "./language-picker";
+import { ThemeToggle } from "./theme-toggle";
 
 /**
  * Public nav. Tokens live in the browser only, so the signed-in state is
@@ -15,6 +18,7 @@ export const MarketingNav = component$(() => {
   const nav = useNavigate();
   const loc = useLocation();
   const flags = useContext(FlagsContext);
+  const i18n = useI18n();
   // null = unknown (SSR / before hydration), boolean = resolved.
   const authed = useSignal<boolean | null>(null);
   const menuOpen = useSignal(false);
@@ -31,10 +35,10 @@ export const MarketingNav = component$(() => {
   });
 
   const links = [
-    ...(!flags["early-access"] ? [{ href: "/info/pricing", label: "Pricing" }] : []),
-    { href: "/blog", label: "Blog" },
-    ...(flags.projects ? [{ href: "/projects", label: "Projects" }] : []),
-    { href: "/sponsors", label: "Sponsors" },
+    ...(!flags["early-access"] ? [{ href: "/info/pricing", label: tr(i18n, "nav.pricing") }] : []),
+    { href: "/blog", label: tr(i18n, "nav.blog") },
+    ...(flags.projects ? [{ href: "/projects", label: tr(i18n, "nav.projects") }] : []),
+    { href: "/sponsors", label: tr(i18n, "nav.sponsors") },
   ];
 
   const logout = $(async () => {
@@ -64,23 +68,27 @@ export const MarketingNav = component$(() => {
           ))}
         </div>
         <div class="flex min-h-[2.5rem] items-center gap-2" data-auth-state={String(authed.value)}>
+          <div class="hidden items-center gap-1 sm:flex">
+            <LanguagePicker />
+            <ThemeToggle />
+          </div>
           {authed.value === true && (
             <>
               <button type="button" class="btn-ghost hidden md:inline-flex" onClick$={logout}>
-                Log out
+                {tr(i18n, "nav.logout")}
               </button>
               <Link href="/dashboard" class="btn-primary">
-                Dashboard
+                {tr(i18n, "nav.dashboard")}
               </Link>
             </>
           )}
           {authed.value === false && (
             <>
               <Link href="/login" class="btn-ghost hidden md:inline-flex">
-                Log in
+                {tr(i18n, "nav.login")}
               </Link>
               <Link href="/signup" class="btn-primary">
-                Sign up free
+                {tr(i18n, "nav.signup")}
               </Link>
             </>
           )}
@@ -88,7 +96,7 @@ export const MarketingNav = component$(() => {
           <button
             type="button"
             class="btn-ghost -mr-2 px-2 md:hidden"
-            aria-label={menuOpen.value ? "Close menu" : "Open menu"}
+            aria-label={menuOpen.value ? tr(i18n, "nav.closeMenu") : tr(i18n, "nav.openMenu")}
             aria-expanded={menuOpen.value}
             aria-controls="mobile-menu"
             onClick$={() => (menuOpen.value = !menuOpen.value)}
@@ -123,27 +131,31 @@ export const MarketingNav = component$(() => {
             </Link>
           ))}
           <div class="my-2 border-t border-slate-100" />
+          <div class="flex items-center gap-2 px-2 py-2 sm:hidden">
+            <LanguagePicker />
+            <ThemeToggle />
+          </div>
           {authed.value === true && (
             <>
               <Link href="/dashboard" class="rounded-lg px-2 py-3 text-base font-medium text-slate-700 hover:bg-slate-50">
-                Dashboard
+                {tr(i18n, "nav.dashboard")}
               </Link>
               <button
                 type="button"
                 class="rounded-lg px-2 py-3 text-left text-base font-medium text-slate-700 hover:bg-slate-50"
                 onClick$={logout}
               >
-                Log out
+                {tr(i18n, "nav.logout")}
               </button>
             </>
           )}
           {authed.value === false && (
             <>
               <Link href="/login" class="rounded-lg px-2 py-3 text-base font-medium text-slate-700 hover:bg-slate-50">
-                Log in
+                {tr(i18n, "nav.login")}
               </Link>
               <Link href="/signup" class="rounded-lg px-2 py-3 text-base font-medium text-primary-600 hover:bg-slate-50">
-                Sign up free
+                {tr(i18n, "nav.signup")}
               </Link>
             </>
           )}

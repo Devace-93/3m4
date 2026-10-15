@@ -15,8 +15,13 @@ export default component$(() => {
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="manifest" href="/manifest.json" />
         <RouterHead />
+        {/* Apply the saved theme / language before first paint (no flash). Same
+            localStorage keys as the other 3m4 apps. */}
+        <script
+          dangerouslySetInnerHTML={`try{var t=localStorage.getItem("3m4.theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;var l=localStorage.getItem("3m4.lang");if(l){document.documentElement.lang=l;document.documentElement.dir=l.slice(0,2)==="ar"?"rtl":"ltr"}}catch(e){}`}
+        />
       </head>
-      <body lang="en" class="min-h-screen bg-white">
+      <body class="min-h-screen bg-white">
         <RouterOutlet />
       </body>
     </QwikCityProvider>

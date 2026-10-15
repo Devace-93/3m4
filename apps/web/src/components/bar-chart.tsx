@@ -1,13 +1,15 @@
 import { component$ } from "@builder.io/qwik";
 import type { SeriesPoint } from "../lib/types";
+import { tr, useI18n } from "../i18n";
 
 /** Lightweight hand-rolled SVG bar chart (no chart-lib dependency). */
 export const BarChart = component$<{ series: SeriesPoint[]; height?: number }>(
   ({ series, height = 160 }) => {
+    const i18n = useI18n();
     if (!series.length) {
       return (
         <div class="grid h-40 place-items-center text-sm text-slate-400">
-          No clicks in this range yet.
+          {tr(i18n, "link.noClicks")}
         </div>
       );
     }
@@ -21,7 +23,7 @@ export const BarChart = component$<{ series: SeriesPoint[]; height?: number }>(
           class="flex items-end gap-[2px]"
           style={{ height: `${height}px` }}
           role="img"
-          aria-label="Clicks over time"
+          aria-label={tr(i18n, "link.clicksOverTime")}
         >
           {series.map((p) => {
             const h = Math.max(2, Math.round((p.count / max) * height));
@@ -32,7 +34,7 @@ export const BarChart = component$<{ series: SeriesPoint[]; height?: number }>(
                 style={{ height: `${h}px`, marginLeft: `${gap / 2}px`, marginRight: `${gap / 2}px` }}
                 title={`${p.date}: ${p.count}`}
               >
-                <span class="pointer-events-none absolute -top-6 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded bg-slate-900 px-1.5 py-0.5 text-[10px] text-white group-hover:block">
+                <span class="pointer-events-none absolute -top-6 left-1/2 hidden -translate-x-1/2 panel-dark whitespace-nowrap rounded bg-slate-900 px-1.5 py-0.5 text-[10px] text-white group-hover:block">
                   {p.count}
                 </span>
               </div>

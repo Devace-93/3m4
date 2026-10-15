@@ -1,5 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import { fmtLimit } from "../lib/plans";
+import { useI18n } from "../i18n";
 
 interface Props {
   label: string;
@@ -9,6 +10,7 @@ interface Props {
 
 /** A labeled usage meter (used / limit) with a colored progress bar. */
 export const UsageBar = component$<Props>(({ label, used, limit }) => {
+  const i18n = useI18n();
   const unlimited = limit < 0;
   const pct = unlimited ? 0 : Math.min(100, Math.round((used / Math.max(limit, 1)) * 100));
   const danger = !unlimited && pct >= 90;
@@ -18,7 +20,7 @@ export const UsageBar = component$<Props>(({ label, used, limit }) => {
       <div class="mb-1 flex items-center justify-between text-sm">
         <span class="font-medium text-slate-700">{label}</span>
         <span class="text-slate-500">
-          {fmtLimit(used)} / {fmtLimit(limit)}
+          {fmtLimit(used, i18n)} / {fmtLimit(limit, i18n)}
         </span>
       </div>
       <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100">
