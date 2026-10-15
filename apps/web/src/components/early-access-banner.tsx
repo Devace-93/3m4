@@ -1,6 +1,7 @@
 import { component$, useContext } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 import { FlagsContext } from "../lib/flags";
+import { tr, useI18n } from "../i18n";
 
 /**
  * Shown wherever plans or limits would otherwise appear while the
@@ -8,6 +9,7 @@ import { FlagsContext } from "../lib/flags";
  */
 export const EarlyAccessBanner = component$<{ compact?: boolean }>(({ compact }) => {
   const flags = useContext(FlagsContext);
+  const i18n = useI18n();
   if (!flags["early-access"]) return null;
   return (
     <div
@@ -17,11 +19,10 @@ export const EarlyAccessBanner = component$<{ compact?: boolean }>(({ compact })
       ]}
       role="status"
     >
-      <span class="font-semibold">Early access.</span>{" "}
-      Every account has full access at no cost right now. Plans and limits will
-      be introduced later, with notice before anything changes.{" "}
+      <span class="font-semibold">{tr(i18n, "early.bannerTitle")}</span>{" "}
+      {tr(i18n, "early.bannerText")}{" "}
       <Link href="/blog/what-paid-plans-will-include" class="font-medium underline">
-        What paid plans will include
+        {tr(i18n, "early.bannerLink")}
       </Link>
     </div>
   );

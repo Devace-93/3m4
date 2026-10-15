@@ -26,25 +26,32 @@ export const ENTITLEMENT_TO_PLAN = planLimits.entitlement_to_plan as Record<
   string
 >;
 
+import { translate, type I18nState } from "../i18n";
+
+function locale(i18n?: I18nState): string {
+  return i18n?.lang ?? "en-US";
+}
+
 /** Format a numeric limit; -1 means unlimited. */
-export function fmtLimit(n: number): string {
-  if (n < 0) return "Unlimited";
-  return n.toLocaleString("en-US");
+export function fmtLimit(n: number, i18n?: I18nState): string {
+  if (n < 0) return i18n ? translate(i18n, "plans.unlimited") : "Unlimited";
+  return n.toLocaleString(locale(i18n));
 }
 
 /** Format a USD price; -1 means custom. */
-export function fmtPrice(n: number): string {
-  if (n < 0) return "Custom";
+export function fmtPrice(n: number, i18n?: I18nState): string {
+  if (n < 0) return i18n ? translate(i18n, "plans.custom") : "Custom";
   if (n === 0) return "$0";
-  return `$${n.toLocaleString("en-US")}`;
+  return `$${n.toLocaleString(locale(i18n))}`;
 }
 
 /** Human label for the retention window. */
-export function fmtRetention(days: number): string {
-  if (days < 0) return "Unlimited";
+export function fmtRetention(days: number, i18n?: I18nState): string {
+  if (days < 0) return fmtLimit(days, i18n);
   if (days % 365 === 0) {
     const y = days / 365;
+    if (i18n) return translate(i18n, y > 1 ? "plans.years" : "plans.year", { n: y });
     return `${y} year${y > 1 ? "s" : ""}`;
   }
-  return `${days} days`;
+  return i18n ? translate(i18n, "plans.days", { n: days }) : `${days} days`;
 }

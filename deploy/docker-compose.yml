@@ -88,6 +88,7 @@ services:
         VITE_POSTHOG_HOST: ${VITE_POSTHOG_HOST:-https://us.i.posthog.com}
         VITE_REVENUECAT_PUBLIC_KEY: ${VITE_REVENUECAT_PUBLIC_KEY:-}
         VITE_BILLING_ENABLED: ${VITE_BILLING_ENABLED:-true}
+        VITE_INFO_URL: ${VITE_INFO_URL:-https://info.3m4.net}
     env_file: ../.env
     environment:
       # SSR resolves feature flags straight from the API over the internal network.

@@ -115,6 +115,23 @@ claude mcp add 3m4 --scope user --env M4_API_KEY=m4_live_… -- npx -y 3m4-mcp
 claude mcp add --transport http 3m4 https://3m4.net/mcp --header "Authorization: Bearer m4_live_…"
 ```
 
+## Languages and theme
+
+The web app ships the same language picker (34 country locales) and light/dark
+toggle as the other 3m4 apps, with preferences shared across them through
+`localStorage` (`3m4.lang`, `3m4.theme`). The footer follows the same shape
+(author → source → apps index at `VITE_INFO_URL`).
+
+- Strings live in `apps/web/src/i18n/catalog/`: `en/*.ts` is the reference
+  (split by surface), one `<base>.ts` per language, optional
+  `<base>-<COUNTRY>.ts` overrides. Resolution: country variant → base → English.
+- Components call `tr(i18n, "key")` (see `apps/web/src/i18n/index.ts` for why
+  it is not a hook-returned `t()`).
+- `bun run check:i18n` (part of `bun run build`) fails on missing keys, extra
+  keys, empty strings or placeholder mismatches.
+- Dark mode is a CSS-variable palette (`apps/web/src/global.css`) remapping the
+  Tailwind scales; intentionally dark panels use `.panel-dark`.
+
 ## Feature flags per environment
 
 Resolution order, first match wins:

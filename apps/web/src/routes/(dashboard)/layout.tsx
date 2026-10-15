@@ -12,6 +12,7 @@ import { Footer } from "../../components/footer";
 import { isAuthenticated } from "../../lib/auth";
 import { api } from "../../lib/api";
 import { FlagsContext, FLAG_DEFAULTS, mergeFlags } from "../../lib/flags";
+import { tr, useI18n } from "../../i18n";
 
 /**
  * Authed area chrome + route guard. Tokens live only in the browser, so the
@@ -24,6 +25,7 @@ import { FlagsContext, FLAG_DEFAULTS, mergeFlags } from "../../lib/flags";
  */
 export default component$(() => {
   const nav = useNavigate();
+  const i18n = useI18n();
   const ready = useSignal(false);
   const flags = useStore({ ...FLAG_DEFAULTS });
   useContextProvider(FlagsContext, flags);
@@ -51,7 +53,7 @@ export default component$(() => {
           <Slot />
         ) : (
           <div class="grid place-items-center py-24 text-sm text-slate-400">
-            Loading…
+            {tr(i18n, "common.loading")}
           </div>
         )}
       </main>

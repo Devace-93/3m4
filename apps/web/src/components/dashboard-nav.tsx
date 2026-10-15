@@ -5,19 +5,24 @@ import { getRefreshToken, clearTokens } from "../lib/auth";
 import { api } from "../lib/api";
 import { resetAnalytics } from "../lib/analytics";
 import { FlagsContext, type FlagKey } from "../lib/flags";
+import { tr, useI18n } from "../i18n";
+import type { CatalogKey } from "../i18n/catalog/en";
+import { LanguagePicker } from "./language-picker";
+import { ThemeToggle } from "./theme-toggle";
 
 const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED !== "false";
 
-const items: { href: string; label: string; flag?: FlagKey }[] = [
-  { href: "/dashboard", label: "Links" },
-  { href: "/dashboard/settings", label: "API keys", flag: "public-api" },
-  { href: "/dashboard/billing", label: "Billing", flag: "billing" },
+const items: { href: string; label: CatalogKey; flag?: FlagKey }[] = [
+  { href: "/dashboard", label: "nav.links" },
+  { href: "/dashboard/settings", label: "nav.apiKeys", flag: "public-api" },
+  { href: "/dashboard/billing", label: "nav.billing", flag: "billing" },
 ];
 
 export const DashboardNav = component$(() => {
   const loc = useLocation();
   const nav = useNavigate();
   const flags = useContext(FlagsContext);
+  const i18n = useI18n();
 
   const visible = items.filter((it) => {
     if (it.flag && !flags[it.flag]) return false;
@@ -62,15 +67,19 @@ export const DashboardNav = component$(() => {
                       : "text-slate-600 hover:bg-slate-100",
                   ]}
                 >
-                  {it.label}
+                  {tr(i18n, it.label)}
                 </Link>
               );
             })}
           </div>
         </div>
-        <button type="button" class="btn-secondary" onClick$={logout}>
-          Log out
-        </button>
+        <div class="flex items-center gap-1">
+          <LanguagePicker />
+          <ThemeToggle />
+          <button type="button" class="btn-secondary ml-1" onClick$={logout}>
+            {tr(i18n, "nav.logout")}
+          </button>
+        </div>
       </nav>
     </header>
   );

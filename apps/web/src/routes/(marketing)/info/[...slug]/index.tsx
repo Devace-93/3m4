@@ -2,6 +2,7 @@ import { component$, useContext } from "@builder.io/qwik";
 import { useLocation, Link, type DocumentHead } from "@builder.io/qwik-city";
 import { PricingTable } from "../../../../components/pricing-table";
 import { FlagsContext } from "../../../../lib/flags";
+import { tr, useI18n } from "../../../../i18n";
 
 /**
  * Catch-all info section. Today it renders a real /info/pricing view and a
@@ -11,6 +12,7 @@ import { FlagsContext } from "../../../../lib/flags";
 export default component$(() => {
   const loc = useLocation();
   const flags = useContext(FlagsContext);
+  const i18n = useI18n();
   const slug = (loc.params.slug || "").replace(/\/$/, "");
 
   if (slug === "pricing") {
@@ -19,28 +21,23 @@ export default component$(() => {
       <div class="mx-auto max-w-6xl px-4 py-16">
         <div class="text-center">
           <h1 class="text-4xl font-bold text-slate-900">
-            {early ? "Planned pricing" : "Simple, honest pricing"}
+            {early ? tr(i18n, "pricing.titlePlanned") : tr(i18n, "pricing.title")}
           </h1>
           <p class="mx-auto mt-3 max-w-2xl text-slate-600">
-            {early
-              ? "These are the tiers we intend to introduce after early access. Nothing here applies yet."
-              : "Start free. Upgrade when you need more links, clicks, domains, or longer retention. Self-host for unlimited everything."}
+            {early ? tr(i18n, "pricing.introPlanned") : tr(i18n, "pricing.intro")}
           </p>
         </div>
 
         {early && (
           <div class="mx-auto mt-8 max-w-3xl rounded-xl border border-primary-200 bg-primary-50 p-6 text-center" data-testid="early-access-pricing">
             <p class="text-lg font-semibold text-primary-900">
-              Right now every account has full access, free.
+              {tr(i18n, "pricing.earlyTitle")}
             </p>
             <p class="mt-2 text-sm text-primary-900/80">
-              Unlimited links and tracked clicks, custom slugs, long retention,
-              the API and the MCP server. When plans arrive we will announce it
-              on the blog and by email before any limit applies to an existing
-              account. Prices and limits below may still change.
+              {tr(i18n, "pricing.earlyBody")}
             </p>
             <Link href="/blog/what-paid-plans-will-include" class="btn-primary mt-4">
-              Read what paid plans will include
+              {tr(i18n, "pricing.earlyCta")}
             </Link>
           </div>
         )}
@@ -51,24 +48,22 @@ export default component$(() => {
 
         <div class="mt-10 card bg-primary-50 p-6 text-center">
           <h2 class="text-lg font-semibold text-slate-900">
-            Need custom limits, SSO, or an SLA?
+            {tr(i18n, "pricing.enterpriseTitle")}
           </h2>
           <p class="mt-1 text-sm text-slate-600">
-            Enterprise plans are tailored to your team.
+            {tr(i18n, "pricing.enterpriseBody")}
           </p>
           <a
             href="mailto:enrique@3m4.net?subject=3m4%20Enterprise"
             class="btn-primary mt-4"
           >
-            Contact us
+            {tr(i18n, "pricing.contactUs")}
           </a>
         </div>
 
         <p class="mt-8 text-center text-sm text-slate-500">
-          All prices in USD. Annual billing saves ~20%. Limits are enforced per
-          billing period; over-limit links are blocked, over-limit clicks keep
-          redirecting (we just stop counting).
-          {early && " None of this is enforced during early access."}
+          {tr(i18n, "pricing.footnote")}
+          {early && ` ${tr(i18n, "pricing.footnoteEarly")}`}
         </p>
       </div>
     );
@@ -77,13 +72,13 @@ export default component$(() => {
   // Generic placeholder for any other /info/* page.
   const title = slug
     ? slug.split("/")[0].replace(/-/g, " ")
-    : "Info";
+    : tr(i18n, "info.title");
   return (
     <div class="mx-auto max-w-3xl px-4 py-20 text-center">
       <h1 class="text-3xl font-bold capitalize text-slate-900">{title}</h1>
-      <p class="mt-3 text-slate-600">This page is coming soon.</p>
+      <p class="mt-3 text-slate-600">{tr(i18n, "info.comingSoon")}</p>
       <Link href="/info" class="btn-secondary mt-6">
-        Back to Info
+        {tr(i18n, "info.backToInfo")}
       </Link>
     </div>
   );

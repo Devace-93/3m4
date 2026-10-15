@@ -4,9 +4,11 @@ import { api, ApiRequestError } from "../../../lib/api";
 import { setTokens, isAuthenticated } from "../../../lib/auth";
 import { identify, capture } from "../../../lib/analytics";
 import { FlagsContext } from "../../../lib/flags";
+import { tr, useI18n } from "../../../i18n";
 
 export default component$(() => {
   const nav = useNavigate();
+  const i18n = useI18n();
   // Public flags are resolved by the root layout (server-side), so the
   // invite-only state renders without a client round-trip.
   const flags = useContext(FlagsContext);
@@ -24,6 +26,9 @@ export default component$(() => {
     if (isAuthenticated()) nav("/dashboard");
   });
 
+  // Resolved during render so the handler captures a string, not the store.
+  const msgSignupFailed = tr(i18n, "auth.signupFailed");
+
   const submit = $(async () => {
     state.error = "";
     state.loading = true;
@@ -38,10 +43,7 @@ export default component$(() => {
       capture("signup", { plan: res.account.plan });
       await nav("/dashboard");
     } catch (e) {
-      state.error =
-        e instanceof ApiRequestError
-          ? e.error.message
-          : "Sign up failed. Please try again.";
+      state.error = e instanceof ApiRequestError ? e.error.message : msgSignupFailed;
     } finally {
       state.loading = false;
     }
@@ -51,15 +53,15 @@ export default component$(() => {
     return (
       <div class="card p-8 text-center">
         <h1 class="text-2xl font-bold text-slate-900">
-          🔒 Sign-ups are invite-only right now
+          {tr(i18n, "auth.inviteOnlyTitle")}
         </h1>
         <p class="mt-3 text-sm text-slate-500">
-          We're rolling out gradually. Follow along — spots open soon.
+          {tr(i18n, "auth.inviteOnlyBody")}
         </p>
         <p class="mt-6 text-sm text-slate-500">
-          Already have an account?{" "}
+          {tr(i18n, "auth.haveAccount")}{" "}
           <Link href="/login" class="font-medium text-primary-600 hover:underline">
-            Log in
+            {tr(i18n, "auth.logIn")}
           </Link>
         </p>
       </div>
@@ -68,11 +70,11 @@ export default component$(() => {
 
   return (
     <div class="card p-8">
-      <h1 class="text-2xl font-bold text-slate-900">Create your account</h1>
+      <h1 class="text-2xl font-bold text-slate-900">{tr(i18n, "auth.signupTitle")}</h1>
       <p class="mt-1 text-sm text-slate-500">
         {flags["early-access"]
-          ? "Early access: full access, free. No card required."
-          : "Free forever: 50 links & 1,000 tracked clicks / month."}
+          ? tr(i18n, "auth.earlyAccessPitch")
+          : tr(i18n, "auth.freePitch")}
       </p>
 
       <form class="mt-6 space-y-4" preventdefault:submit onSubmit$={submit}>
@@ -83,20 +85,21 @@ export default component$(() => {
         )}
         <div>
           <label class="label" for="accountName">
-            Workspace name <span class="text-slate-400">(optional)</span>
+            {tr(i18n, "auth.workspaceName")}{" "}
+            <span class="text-slate-400">{tr(i18n, "common.optional")}</span>
           </label>
           <input
             id="accountName"
             type="text"
             class="input"
-            placeholder="Acme Inc."
+            placeholder={tr(i18n, "auth.workspacePlaceholder")}
             value={state.accountName}
             onInput$={(_, el) => (state.accountName = el.value)}
           />
         </div>
         <div>
           <label class="label" for="email">
-            Email
+            {tr(i18n, "common.email")}
           </label>
           <input
             id="email"
@@ -110,7 +113,7 @@ export default component$(() => {
         </div>
         <div>
           <label class="label" for="password">
-            Password
+            {tr(i18n, "common.password")}
           </label>
           <input
             id="password"
@@ -122,17 +125,17 @@ export default component$(() => {
             value={state.password}
             onInput$={(_, el) => (state.password = el.value)}
           />
-          <p class="mt-1 text-xs text-slate-400">At least 8 characters.</p>
+          <p class="mt-1 text-xs text-slate-400">{tr(i18n, "auth.passwordHint")}</p>
         </div>
         <button type="submit" class="btn-primary w-full" disabled={state.loading}>
-          {state.loading ? "Creating account…" : "Create account"}
+          {state.loading ? tr(i18n, "auth.creatingAccount") : tr(i18n, "auth.createAccount")}
         </button>
       </form>
 
       <p class="mt-6 text-center text-sm text-slate-500">
-        Already have an account?{" "}
+        {tr(i18n, "auth.haveAccount")}{" "}
         <Link href="/login" class="font-medium text-primary-600 hover:underline">
-          Log in
+          {tr(i18n, "auth.logIn")}
         </Link>
       </p>
     </div>
