@@ -60,7 +60,7 @@ one-line reason, so they show up as skipped rather than silently passing.
 
 ## Demo recording
 
-`docs/demo.gif` is generated, not hand-made:
+`docs/demo.gif` and `docs/demo.webm` are generated, not hand-made (the webm comes from Playwright's built-in recorder, 1280×720 VP9):
 
 ```bash
 cd e2e && bun run scripts/record-demo.ts        # drives the local stack, captures captioned frames

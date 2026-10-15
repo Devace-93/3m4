@@ -9,6 +9,8 @@ API — self-hostable under the MIT license.
 
 ![Demo: sign up, create a short link, QR code, click analytics, role-scoped API keys, MCP server](docs/demo.gif)
 
+[▶ Watch the 55-second video (webm)](docs/demo.webm)
+
 ---
 
 ## Why 3m4

@@ -1,12 +1,14 @@
 /**
- * Scripted product demo: drives the running local stack with Playwright and
- * captures captioned frames into a folder. `make-gif.py` turns them into
- * docs/demo.gif (no ffmpeg needed).
+ * Scripted product demo: drives the running local stack with Playwright,
+ * records a video (Playwright's built-in recorder, webm) and captures
+ * captioned still frames. `make-gif.py` turns the frames into docs/demo.gif;
+ * the webm is written next to them as demo.webm (convert with ffmpeg if you
+ * need mp4).
  *
  *   cd e2e && bun run scripts/record-demo.ts [outDir]
  */
 import { chromium, type Page } from "playwright";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:8080";
@@ -34,13 +36,17 @@ async function caption(page: Page, text: string) {
   }, text);
 }
 
-/** Capture one frame; `hold` is how long the GIF shows it (ms). */
+/**
+ * Capture one frame; `hold` is how long the GIF shows it (ms). The video
+ * keeps rolling, so we also pause for `hold` to give viewers time to read.
+ */
 async function shot(page: Page, text: string, hold = 1600) {
   await caption(page, text);
   await page.waitForTimeout(250);
   const file = join(OUT, `frame-${String(n++).padStart(3, "0")}.png`);
   await page.screenshot({ path: file });
   frames.push({ file, hold });
+  await page.waitForTimeout(hold);
 }
 
 async function typeInto(page: Page, selector: string, value: string, text: string) {
@@ -50,7 +56,11 @@ async function typeInto(page: Page, selector: string, value: string, text: strin
 }
 
 const browser = await chromium.launch();
-const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
+const ctx = await browser.newContext({
+  viewport: { width: 1280, height: 720 },
+  deviceScaleFactor: 1,
+  recordVideo: { dir: OUT, size: { width: 1280, height: 720 } },
+});
 const page = await ctx.newPage();
 const ts = Date.now().toString(36);
 const email = `demo+${ts}@example.com`;
@@ -127,6 +137,12 @@ await page.locator("#mcp").scrollIntoViewIfNeeded();
 await page.waitForTimeout(300);
 await shot(page, "claude mcp add 3m4 … then: “shorten this URL and give me the QR”", 3000);
 
+const video = page.video();
+await ctx.close();
 await browser.close();
+if (video) {
+  const recorded = await video.path();
+  renameSync(recorded, join(OUT, "demo.webm"));
+}
 writeFileSync(join(OUT, "frames.json"), JSON.stringify(frames, null, 2));
-console.log(`captured ${frames.length} frames in ${OUT}`);
+console.log(`captured ${frames.length} frames${video ? " + demo.webm" : ""} in ${OUT}`);
