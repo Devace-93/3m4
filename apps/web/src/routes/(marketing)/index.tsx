@@ -34,6 +34,9 @@ const features = [
 ];
 
 const MCP_SNIPPET = "claude mcp add 3m4 --scope user --env M4_API_KEY=m4_live_… -- npx -y 3m4-mcp";
+const MCP_REMOTE_SNIPPET =
+  'claude mcp add --transport http 3m4 https://3m4.net/mcp --header "Authorization: Bearer m4_live_…"';
+const MCP_NPM_URL = "https://www.npmjs.com/package/3m4-mcp";
 
 export default component$(() => {
   const flags = useContext(FlagsContext);
@@ -128,13 +131,17 @@ export default component$(() => {
               <li>
                 <strong>Local or remote.</strong> Run it over stdio with{" "}
                 <code class="rounded bg-slate-200 px-1 py-0.5 text-xs">npx 3m4-mcp</code>{" "}
-                or point your host at <code class="rounded bg-slate-200 px-1 py-0.5 text-xs">/mcp</code> with your key.
+                (<a href={MCP_NPM_URL} target="_blank" rel="noreferrer" class="text-primary-600 hover:underline">npm</a>)
+                or point your host at{" "}
+                <code class="rounded bg-slate-200 px-1 py-0.5 text-xs">https://3m4.net/mcp</code> with your key.
               </li>
             </ul>
           </div>
           <div class="card min-w-0 bg-slate-900 p-6 text-slate-100">
-            <div class="text-xs uppercase tracking-wide text-slate-400">Claude Code</div>
+            <div class="text-xs uppercase tracking-wide text-slate-400">Claude Code · local (npm)</div>
             <pre class="mt-3 overflow-x-auto whitespace-pre-wrap break-all rounded-lg bg-slate-800 p-4 text-sm leading-relaxed"><code>{MCP_SNIPPET}</code></pre>
+            <div class="mt-5 text-xs uppercase tracking-wide text-slate-400">Claude Code · remote (nothing to install)</div>
+            <pre class="mt-3 overflow-x-auto whitespace-pre-wrap break-all rounded-lg bg-slate-800 p-4 text-sm leading-relaxed"><code>{MCP_REMOTE_SNIPPET}</code></pre>
             <div class="mt-5 text-xs uppercase tracking-wide text-slate-400">Any MCP host (JSON)</div>
             <pre class="mt-3 overflow-x-auto rounded-lg bg-slate-800 p-4 text-xs leading-relaxed"><code>{`{
   "mcpServers": {
