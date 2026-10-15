@@ -109,8 +109,10 @@ denial lands in an append-only **audit log** (`GET /api/account/audit`).
 Destructive tools require **human confirmation**.
 
 ```bash
+# local, from npm (https://www.npmjs.com/package/3m4-mcp)
 claude mcp add 3m4 --scope user --env M4_API_KEY=m4_live_… -- npx -y 3m4-mcp
-# or remote: claude mcp add --transport http 3m4 https://3m4.net/mcp --header "Authorization: Bearer m4_live_…"
+# remote, nothing to install
+claude mcp add --transport http 3m4 https://3m4.net/mcp --header "Authorization: Bearer m4_live_…"
 ```
 
 ## Feature flags per environment
