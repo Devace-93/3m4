@@ -74,7 +74,7 @@ def process_click(payload: dict) -> None:
             return
 
         plan = account.plan
-        limit = plans.plan_limits(plan).get("tracked_clicks_per_month", 0)
+        limit = plans.effective_plan_limits(plan, str(account_id)).get("tracked_clicks_per_month", 0)
 
         counter = get_or_create_counter(session, account_id)
 
@@ -161,7 +161,7 @@ def enforce_retention() -> None:
     with session_scope() as session:
         accounts = session.execute(select(Account.id, Account.plan)).all()
         for account_id, plan in accounts:
-            retention_days = plans.plan_limits(plan).get("retention_days", -1)
+            retention_days = plans.effective_plan_limits(plan, str(account_id)).get("retention_days", -1)
             if plans.is_unlimited(retention_days):
                 continue
 

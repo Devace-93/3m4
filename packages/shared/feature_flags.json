@@ -36,6 +36,18 @@
       "description": "Paywall, checkout and /billing/offerings. The RevenueCat webhook is NEVER gated.",
       "default": true,
       "created": "2026-07-10"
+    },
+    "early-access": {
+      "description": "Early access mode. ON = every account gets the enterprise limits for free, plan/billing surfaces are hidden and an early-access notice is shown. OFF = plans and limits are enforced as configured.",
+      "default": true,
+      "self_host": true,
+      "created": "2026-10-14"
+    },
+    "projects": {
+      "description": "The public /projects section (things built with 3m4). OFF hides the nav links and the pages render a coming-soon state.",
+      "default": false,
+      "self_host": false,
+      "created": "2026-10-14"
     }
   }
 }

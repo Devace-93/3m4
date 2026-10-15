@@ -38,10 +38,16 @@ CLICK_TASK = "process_click"
 _celery_client = Celery(broker=config.celery_broker_url)
 
 _NOT_FOUND_HTML = (
-    "<!doctype html><html><head><meta charset='utf-8'>"
-    "<title>Not found</title></head>"
-    "<body style='font-family:system-ui;text-align:center;margin-top:4rem'>"
-    "<h1>404</h1><p>This short link doesn't exist.</p></body></html>"
+    "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
+    "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+    "<link rel='icon' href='/favicon.ico' sizes='48x48'>"
+    "<link rel='icon' type='image/svg+xml' href='/favicon.svg'>"
+    "<title>Link not found \u2014 3m4</title></head>"
+    "<body style='font-family:system-ui,sans-serif;text-align:center;"
+    "margin:6rem auto;max-width:28rem;padding:0 1rem;color:#0f172a'>"
+    "<h1 style='font-size:3rem;margin:0'>404</h1>"
+    "<p style='color:#475569'>This short link doesn't exist or has been removed.</p>"
+    "<p><a href='/' style='color:#2563eb'>Go to 3m4</a></p></body></html>"
 )
 
 
