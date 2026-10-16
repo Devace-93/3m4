@@ -107,6 +107,26 @@ metrics.3m4.net {
 	}
 }
 
+# oops (error tracking): /opt/oops, same pattern. /o.js is the browser SDK
+# embedded by third-party apps, so it is served cacheable and CORS-open.
+oops.3m4.net {
+	handle /api/* {
+		reverse_proxy oops-api-1:5000
+	}
+	handle /mcp* {
+		reverse_proxy oops-mcp-1:3333
+	}
+	@sdk path /o.js /o/*
+	handle @sdk {
+		header Cache-Control "public, max-age=3600"
+		header Access-Control-Allow-Origin "*"
+		reverse_proxy oops-web-1:3000
+	}
+	handle {
+		reverse_proxy oops-web-1:3000
+	}
+}
+
 # smart-docs (knowledge base): /opt/smart-docs, compose project `smart-docs`.
 # One FastAPI container serves the API, the editor, /mcp and the public pages.
 smart-docs.3m4.net {
