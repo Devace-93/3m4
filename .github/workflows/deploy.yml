@@ -26,9 +26,9 @@ jobs:
             cd /opt/3m4
             git pull --ff-only
             cd deploy
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
+            docker compose --env-file ../.env -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
             # Caddyfile.prod is a bind-mounted single file: git replaces the inode on
             # pull, so a running Caddy keeps serving the old config until the
             # container is recreated (a reload would not see the change).
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate caddy
+            docker compose --env-file ../.env -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate caddy
             docker image prune -f
