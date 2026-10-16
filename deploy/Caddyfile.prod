@@ -87,6 +87,26 @@ retro.3m4.net {
 	}
 }
 
+# metrics (web analytics): /opt/metrics, same pattern. /m.js is embedded by
+# third-party sites, so it is served cacheable and CORS-open.
+metrics.3m4.net {
+	handle /api/* {
+		reverse_proxy metrics-api-1:5000
+	}
+	handle /mcp* {
+		reverse_proxy metrics-mcp-1:3333
+	}
+	@tracker path /m.js /m/*
+	handle @tracker {
+		header Cache-Control "public, max-age=3600"
+		header Access-Control-Allow-Origin "*"
+		reverse_proxy metrics-web-1:3000
+	}
+	handle {
+		reverse_proxy metrics-web-1:3000
+	}
+}
+
 # smart-docs (knowledge base): /opt/smart-docs, compose project `smart-docs`.
 # One FastAPI container serves the API, the editor, /mcp and the public pages.
 smart-docs.3m4.net {
