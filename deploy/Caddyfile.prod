@@ -67,6 +67,26 @@ exp.3m4.net {
 	}
 }
 
+# retro (user feedback): /opt/retro, same pattern. /widget.js is embedded by
+# third-party sites, so it is served cacheable and CORS-open.
+retro.3m4.net {
+	handle /api/* {
+		reverse_proxy retro-api-1:5000
+	}
+	handle /mcp* {
+		reverse_proxy retro-mcp-1:3333
+	}
+	@widget path /widget.js /widget/*
+	handle @widget {
+		header Cache-Control "public, max-age=300"
+		header Access-Control-Allow-Origin "*"
+		reverse_proxy retro-web-1:3000
+	}
+	handle {
+		reverse_proxy retro-web-1:3000
+	}
+}
+
 # smart-docs (knowledge base): /opt/smart-docs, compose project `smart-docs`.
 # One FastAPI container serves the API, the editor, /mcp and the public pages.
 smart-docs.3m4.net {
