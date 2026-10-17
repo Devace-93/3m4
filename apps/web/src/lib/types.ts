@@ -1,8 +1,14 @@
 /** Shared API shapes (mirror of CONTRACT.md). */
 
+/** The local mirror of an accounts.3m4.net identity (see CONTRACT.md "Auth"). */
 export interface User {
   id: string;
+  identity_id: string;
   email: string;
+  email_verified: boolean;
+  handle: string;
+  name: string | null;
+  avatar_url: string | null;
   created_at?: string;
 }
 
@@ -29,13 +35,6 @@ export interface Usage {
   links_created: number;
   tracked_clicks: number;
   limits?: Limits;
-}
-
-export interface AuthResponse {
-  user: User;
-  account: Account;
-  access_token: string;
-  refresh_token: string;
 }
 
 export interface MeResponse {

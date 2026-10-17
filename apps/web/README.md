@@ -6,7 +6,7 @@ Node-compatible HTTP server on **port 3000** (run with Bun).
 
 - Apex `3m4.net` → marketing: `/`, `/info/*` (incl. `/info/pricing`), `/blog/*`,
   `/projects/*`, `/sponsors`.
-- `app.3m4.net` → dashboard: `/login`, `/signup`, `/dashboard`,
+- `app.3m4.net` → dashboard: `/login` and `/signup` (redirects to accounts.3m4.net), `/dashboard`,
   `/dashboard/links/[id]`, `/dashboard/settings`, `/dashboard/billing`.
 
 Toolchain: **Bun** (do not use npm/pnpm). Stack: Qwik + Qwik City + Vite +
@@ -80,7 +80,7 @@ src/
 ## Notes
 
 - **Auth guard**: tokens live only in the browser, so `/dashboard/*` is guarded
-  client-side in `routes/(dashboard)/layout.tsx` (redirects to `/login`).
+  client-side in `routes/(dashboard)/layout.tsx` (sends signed-out visitors to the accounts login page, back here afterwards).
 - **Adapter**: `@builder.io/qwik-city/adapters/node-server` → `server/entry.node-server.js`.
 - **Billing**: `dashboard/billing` has a `TODO(billing)` where the RevenueCat Web
   SDK checkout goes (`app_user_id = account id`, entitlements `pro`/`team`).

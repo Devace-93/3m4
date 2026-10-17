@@ -30,15 +30,6 @@ const ptPT: PartialCatalog = {
   "common.password": "Palavra-passe",
   "common.role": "Função",
 
-  "auth.loginTitle": "Iniciar sessão",
-  "auth.loginFailed": "Falha ao iniciar sessão. Verifique o seu e-mail e palavra-passe.",
-  "auth.loggingIn": "A iniciar sessão…",
-  "auth.signUp": "Registe-se",
-  "auth.signupFailed": "Falha no registo. Tente novamente.",
-  "auth.inviteOnlyTitle": "🔒 De momento o registo é só por convite",
-  "auth.logIn": "Iniciar sessão",
-  "auth.creatingAccount": "A criar conta…",
-
   "dash.limitReached": "Atingiu o limite mensal de links deste plano.",
   "dash.redirect301": "301 — Permanente (guardado em cache pelos navegadores)",
   "dash.loadingLinks": "A carregar links…",
