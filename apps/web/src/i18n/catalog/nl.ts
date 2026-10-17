@@ -11,6 +11,9 @@ const nl: PartialCatalog = {
   "nav.signup": "Gratis aanmelden",
   "nav.dashboard": "Dashboard",
   "nav.logout": "Uitloggen",
+  "nav.profile": "Profiel",
+  "auth.unverifiedBanner": "Bevestig je e-mailadres ({email}) om links en API-sleutels te maken.",
+  "auth.resendAt": "Nu verifiëren",
   "nav.openMenu": "Menu openen",
   "nav.closeMenu": "Menu sluiten",
   "nav.links": "Links",
@@ -216,27 +219,8 @@ const nl: PartialCatalog = {
   "common.name": "Naam",
 
   // Auth: login
-  "auth.loginTitle": "Inloggen",
-  "auth.loginSubtitle": "Welkom terug bij 3m4.",
-  "auth.loginFailed": "Inloggen mislukt. Controleer je e-mail en wachtwoord.",
-  "auth.loggingIn": "Inloggen…",
-  "auth.noAccount": "Nog geen account?",
-  "auth.signUp": "Aanmelden",
 
   // Auth: signup
-  "auth.signupTitle": "Maak je account aan",
-  "auth.signupFailed": "Aanmelden mislukt. Probeer het opnieuw.",
-  "auth.inviteOnlyTitle": "🔒 Aanmelden kan nu alleen op uitnodiging",
-  "auth.inviteOnlyBody": "We openen geleidelijk. Blijf op de hoogte: binnenkort komen er plekken vrij.",
-  "auth.haveAccount": "Al een account?",
-  "auth.logIn": "Inloggen",
-  "auth.earlyAccessPitch": "Early access: volledige toegang, gratis. Geen kaart nodig.",
-  "auth.freePitch": "Voor altijd gratis: 50 links en 1.000 gemeten kliks / maand.",
-  "auth.workspaceName": "Naam van de werkruimte",
-  "auth.workspacePlaceholder": "Acme B.V.",
-  "auth.passwordHint": "Minimaal 8 tekens.",
-  "auth.creatingAccount": "Account aanmaken…",
-  "auth.createAccount": "Account aanmaken",
 
   // Dashboard: links list
   "dash.title": "Je links",

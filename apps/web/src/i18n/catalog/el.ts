@@ -11,6 +11,9 @@ const el: PartialCatalog = {
   "nav.signup": "Δωρεάν εγγραφή",
   "nav.dashboard": "Πίνακας",
   "nav.logout": "Αποσύνδεση",
+  "nav.profile": "Προφίλ",
+  "auth.unverifiedBanner": "Επιβεβαιώστε τη διεύθυνση e-mail σας ({email}) για να δημιουργείτε συνδέσμους και κλειδιά API.",
+  "auth.resendAt": "Επαλήθευση τώρα",
   "nav.openMenu": "Άνοιγμα μενού",
   "nav.closeMenu": "Κλείσιμο μενού",
   "nav.links": "Σύνδεσμοι",
@@ -216,27 +219,8 @@ const el: PartialCatalog = {
   "common.name": "Όνομα",
 
   // Auth: login
-  "auth.loginTitle": "Σύνδεση",
-  "auth.loginSubtitle": "Καλώς ήρθες ξανά στο 3m4.",
-  "auth.loginFailed": "Η σύνδεση απέτυχε. Έλεγξε το email και τον κωδικό σου.",
-  "auth.loggingIn": "Σύνδεση…",
-  "auth.noAccount": "Δεν έχεις λογαριασμό;",
-  "auth.signUp": "Εγγραφή",
 
   // Auth: signup
-  "auth.signupTitle": "Δημιούργησε τον λογαριασμό σου",
-  "auth.signupFailed": "Η εγγραφή απέτυχε. Δοκίμασε ξανά.",
-  "auth.inviteOnlyTitle": "🔒 Οι εγγραφές γίνονται μόνο με πρόσκληση προς το παρόν",
-  "auth.inviteOnlyBody": "Ανοίγουμε σταδιακά. Μείνε συντονισμένος — θέσεις ανοίγουν σύντομα.",
-  "auth.haveAccount": "Έχεις ήδη λογαριασμό;",
-  "auth.logIn": "Σύνδεση",
-  "auth.earlyAccessPitch": "Πρώιμη πρόσβαση: πλήρης πρόσβαση, δωρεάν. Χωρίς κάρτα.",
-  "auth.freePitch": "Δωρεάν για πάντα: 50 σύνδεσμοι και 1.000 καταγεγραμμένα κλικ / μήνα.",
-  "auth.workspaceName": "Όνομα χώρου εργασίας",
-  "auth.workspacePlaceholder": "Acme ΑΕ",
-  "auth.passwordHint": "Τουλάχιστον 8 χαρακτήρες.",
-  "auth.creatingAccount": "Δημιουργία λογαριασμού…",
-  "auth.createAccount": "Δημιουργία λογαριασμού",
 
   // Dashboard: links list
   "dash.title": "Οι σύνδεσμοί σου",

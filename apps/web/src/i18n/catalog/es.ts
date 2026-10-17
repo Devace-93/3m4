@@ -11,6 +11,9 @@ const es: PartialCatalog = {
   "nav.signup": "Regístrate gratis",
   "nav.dashboard": "Panel",
   "nav.logout": "Cerrar sesión",
+  "nav.profile": "Perfil",
+  "auth.unverifiedBanner": "Confirma tu correo ({email}) para crear enlaces y claves API.",
+  "auth.resendAt": "Verificar ahora",
   "nav.openMenu": "Abrir menú",
   "nav.closeMenu": "Cerrar menú",
   "nav.links": "Enlaces",
@@ -216,27 +219,8 @@ const es: PartialCatalog = {
   "common.name": "Nombre",
 
   // Auth: login
-  "auth.loginTitle": "Iniciar sesión",
-  "auth.loginSubtitle": "Bienvenido de vuelta a 3m4.",
-  "auth.loginFailed": "No se pudo iniciar sesión. Revisa tu correo y contraseña.",
-  "auth.loggingIn": "Iniciando sesión…",
-  "auth.noAccount": "¿No tienes cuenta?",
-  "auth.signUp": "Regístrate",
 
   // Auth: signup
-  "auth.signupTitle": "Crea tu cuenta",
-  "auth.signupFailed": "No se pudo crear la cuenta. Inténtalo de nuevo.",
-  "auth.inviteOnlyTitle": "🔒 Por ahora el registro es solo con invitación",
-  "auth.inviteOnlyBody": "Estamos abriendo poco a poco. Mantente al tanto: pronto habrá lugares.",
-  "auth.haveAccount": "¿Ya tienes cuenta?",
-  "auth.logIn": "Iniciar sesión",
-  "auth.earlyAccessPitch": "Acceso anticipado: acceso completo, gratis. Sin tarjeta.",
-  "auth.freePitch": "Gratis para siempre: 50 enlaces y 1,000 clics rastreados al mes.",
-  "auth.workspaceName": "Nombre del espacio de trabajo",
-  "auth.workspacePlaceholder": "Acme Inc.",
-  "auth.passwordHint": "Al menos 8 caracteres.",
-  "auth.creatingAccount": "Creando cuenta…",
-  "auth.createAccount": "Crear cuenta",
 
   // Dashboard: links list
   "dash.title": "Tus enlaces",

@@ -7,6 +7,7 @@ import {
 } from "@builder.io/qwik";
 import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import { api, ApiRequestError } from "../../../../lib/api";
+import { profileUrl } from "../../../../lib/auth";
 import { FlagsContext } from "../../../../lib/flags";
 import { tr, useI18n } from "../../../../i18n";
 import type { ApiKey, ApiKeyRole } from "../../../../lib/types";
@@ -128,6 +129,12 @@ export default component$(() => {
         <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs">
           X-API-Key: m4_live_…
         </code>
+      </p>
+      {/* Identity (e-mail, password, avatar, linked logins) is managed at accounts. */}
+      <p class="mt-2 text-sm text-slate-500">
+        <a href={profileUrl()} class="font-medium text-primary-600 hover:underline" data-testid="profile-link">
+          {tr(i18n, "nav.profile")} →
+        </a>
       </p>
 
       {state.error && (

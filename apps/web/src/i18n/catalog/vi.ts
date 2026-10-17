@@ -11,6 +11,9 @@ const vi: PartialCatalog = {
   "nav.signup": "Đăng ký miễn phí",
   "nav.dashboard": "Bảng điều khiển",
   "nav.logout": "Đăng xuất",
+  "nav.profile": "Hồ sơ",
+  "auth.unverifiedBanner": "Xác nhận địa chỉ e-mail của bạn ({email}) để tạo liên kết và khóa API.",
+  "auth.resendAt": "Xác minh ngay",
   "nav.openMenu": "Mở menu",
   "nav.closeMenu": "Đóng menu",
   "nav.links": "Liên kết",
@@ -216,27 +219,8 @@ const vi: PartialCatalog = {
   "common.name": "Tên",
 
   // Auth: login
-  "auth.loginTitle": "Đăng nhập",
-  "auth.loginSubtitle": "Chào mừng bạn trở lại 3m4.",
-  "auth.loginFailed": "Đăng nhập thất bại. Kiểm tra email và mật khẩu của bạn.",
-  "auth.loggingIn": "Đang đăng nhập…",
-  "auth.noAccount": "Chưa có tài khoản?",
-  "auth.signUp": "Đăng ký",
 
   // Auth: signup
-  "auth.signupTitle": "Tạo tài khoản",
-  "auth.signupFailed": "Đăng ký thất bại. Vui lòng thử lại.",
-  "auth.inviteOnlyTitle": "🔒 Hiện chỉ đăng ký qua lời mời",
-  "auth.inviteOnlyBody": "Chúng tôi đang mở dần. Hãy theo dõi — sẽ sớm có chỗ.",
-  "auth.haveAccount": "Đã có tài khoản?",
-  "auth.logIn": "Đăng nhập",
-  "auth.earlyAccessPitch": "Truy cập sớm: đầy đủ tính năng, miễn phí. Không cần thẻ.",
-  "auth.freePitch": "Miễn phí mãi mãi: 50 liên kết và 1.000 lượt nhấp được theo dõi / tháng.",
-  "auth.workspaceName": "Tên không gian làm việc",
-  "auth.workspacePlaceholder": "Công ty Acme",
-  "auth.passwordHint": "Ít nhất 8 ký tự.",
-  "auth.creatingAccount": "Đang tạo tài khoản…",
-  "auth.createAccount": "Tạo tài khoản",
 
   // Dashboard: links list
   "dash.title": "Liên kết của bạn",

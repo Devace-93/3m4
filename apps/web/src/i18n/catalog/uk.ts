@@ -11,6 +11,9 @@ const uk: PartialCatalog = {
   "nav.signup": "Зареєструватися безкоштовно",
   "nav.dashboard": "Панель",
   "nav.logout": "Вийти",
+  "nav.profile": "Профіль",
+  "auth.unverifiedBanner": "Підтвердьте свою електронну адресу ({email}), щоб створювати посилання та API-ключі.",
+  "auth.resendAt": "Підтвердити зараз",
   "nav.openMenu": "Відкрити меню",
   "nav.closeMenu": "Закрити меню",
   "nav.links": "Посилання",
@@ -216,27 +219,8 @@ const uk: PartialCatalog = {
   "common.name": "Назва",
 
   // Auth: login
-  "auth.loginTitle": "Вхід",
-  "auth.loginSubtitle": "З поверненням до 3m4.",
-  "auth.loginFailed": "Не вдалося увійти. Перевірте пошту й пароль.",
-  "auth.loggingIn": "Вхід…",
-  "auth.noAccount": "Немає акаунта?",
-  "auth.signUp": "Зареєструватися",
 
   // Auth: signup
-  "auth.signupTitle": "Створіть акаунт",
-  "auth.signupFailed": "Не вдалося зареєструватися. Спробуйте ще раз.",
-  "auth.inviteOnlyTitle": "🔒 Реєстрація зараз лише за запрошенням",
-  "auth.inviteOnlyBody": "Ми відкриваємо доступ поступово. Слідкуйте — місця з'являться незабаром.",
-  "auth.haveAccount": "Уже маєте акаунт?",
-  "auth.logIn": "Увійти",
-  "auth.earlyAccessPitch": "Ранній доступ: повний доступ безкоштовно. Картка не потрібна.",
-  "auth.freePitch": "Безкоштовно назавжди: 50 посилань і 1 000 відстежених кліків / місяць.",
-  "auth.workspaceName": "Назва робочого простору",
-  "auth.workspacePlaceholder": "ТОВ «Acme»",
-  "auth.passwordHint": "Щонайменше 8 символів.",
-  "auth.creatingAccount": "Створення акаунта…",
-  "auth.createAccount": "Створити акаунт",
 
   // Dashboard: links list
   "dash.title": "Ваші посилання",

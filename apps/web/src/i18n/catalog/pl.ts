@@ -11,6 +11,9 @@ const pl: PartialCatalog = {
   "nav.signup": "Zarejestruj się za darmo",
   "nav.dashboard": "Panel",
   "nav.logout": "Wyloguj się",
+  "nav.profile": "Profil",
+  "auth.unverifiedBanner": "Potwierdź swój adres e-mail ({email}), aby tworzyć linki i klucze API.",
+  "auth.resendAt": "Zweryfikuj teraz",
   "nav.openMenu": "Otwórz menu",
   "nav.closeMenu": "Zamknij menu",
   "nav.links": "Linki",
@@ -216,27 +219,8 @@ const pl: PartialCatalog = {
   "common.name": "Nazwa",
 
   // Auth: login
-  "auth.loginTitle": "Zaloguj się",
-  "auth.loginSubtitle": "Witaj ponownie w 3m4.",
-  "auth.loginFailed": "Logowanie nie powiodło się. Sprawdź e-mail i hasło.",
-  "auth.loggingIn": "Logowanie…",
-  "auth.noAccount": "Nie masz konta?",
-  "auth.signUp": "Zarejestruj się",
 
   // Auth: signup
-  "auth.signupTitle": "Utwórz konto",
-  "auth.signupFailed": "Rejestracja nie powiodła się. Spróbuj ponownie.",
-  "auth.inviteOnlyTitle": "🔒 Rejestracja jest obecnie tylko na zaproszenie",
-  "auth.inviteOnlyBody": "Wdrażamy stopniowo. Bądź na bieżąco — miejsca otworzą się wkrótce.",
-  "auth.haveAccount": "Masz już konto?",
-  "auth.logIn": "Zaloguj się",
-  "auth.earlyAccessPitch": "Wczesny dostęp: pełny dostęp, za darmo. Bez karty.",
-  "auth.freePitch": "Za darmo na zawsze: 50 linków i 1000 śledzonych kliknięć / miesiąc.",
-  "auth.workspaceName": "Nazwa przestrzeni roboczej",
-  "auth.workspacePlaceholder": "Acme Sp. z o.o.",
-  "auth.passwordHint": "Co najmniej 8 znaków.",
-  "auth.creatingAccount": "Tworzenie konta…",
-  "auth.createAccount": "Utwórz konto",
 
   // Dashboard: links list
   "dash.title": "Twoje linki",
