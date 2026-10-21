@@ -25,6 +25,11 @@ API — self-hostable under the MIT license.
 
 ## Architecture
 
+Sign-in is shared with every 3m4 app: identity (password, magic link, Google /
+GitHub / Microsoft / Discord, e-mail verification, avatar) lives in
+[accounts.3m4.net](https://github.com/Devace-93/accounts); 3m4 verifies its
+session cookie and keeps a local mirror of the user (see `CONTRACT.md` → Auth).
+
 ```
 Caddy (reverse proxy, auto-HTTPS)
  ├─ web        Qwik City (Bun)   landing + /info + /blog + /projects + /sponsors + dashboard
@@ -54,7 +59,7 @@ db/                Alembic scaffold for future migrations
 ## Quick start (Docker)
 
 ```bash
-cp .env.example .env        # then edit secrets (JWT_SECRET_KEY, IP_HASH_SALT, ...)
+cp .env.example .env        # then edit secrets (IP_HASH_SALT, ...) and ACCOUNTS_URL
 make up                     # build + start everything; runs migrations & seeds
 # open http://localhost:8080
 ```
@@ -95,7 +100,7 @@ make e2e                      # or: cd e2e && bun install && bun run test
 ## Configuration
 
 All config is environment-driven — see [`.env.example`](.env.example). Key values:
-`DATABASE_URL`, `REDIS_URL`, `JWT_SECRET_KEY`, `IP_HASH_SALT`, `BILLING_ENABLED`,
+`DATABASE_URL`, `REDIS_URL`, `ACCOUNTS_URL` / `ACCOUNTS_INTERNAL_URL`, `IP_HASH_SALT`, `BILLING_ENABLED`,
 `REVENUECAT_WEBHOOK_AUTH_TOKEN`, `POSTHOG_API_KEY`, `RESUME_REDIRECT_URL`.
 
 ## AI agents (MCP)

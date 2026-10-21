@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from functools import wraps
 
-from flask import Blueprint, g, jsonify, request
+from flask import Blueprint, g, jsonify
 
 from dbcore.feature_flags import is_enabled, resolve_all
 
@@ -47,19 +47,31 @@ bp = Blueprint("flags", __name__)
 
 @bp.get("")
 def flags():
-    """Resolved flags for the requester. Public: anonymous pages (e.g. signup)
-    need to know their flags before any session exists. An optional bearer
-    token upgrades resolution to the account's targeting bucket — but this
-    endpoint never *requires* auth, so it tolerates bad/expired tokens.
+    """Resolved flags for the requester. Public: the marketing pages need
+    their flags before any session exists. A valid accounts session upgrades
+    resolution to the account's targeting bucket — but this endpoint never
+    *requires* auth, so it tolerates missing, bad or expired sessions.
     """
     distinct = "anonymous"
-    header = request.headers.get("Authorization", "")
-    if header.startswith("Bearer "):
-        try:
-            from .auth_utils import decode_access_token
+    try:
+        from sqlalchemy import select
 
-            payload = decode_access_token(header[len("Bearer ") :].strip())
-            distinct = payload["account_id"]
-        except Exception:
-            pass
+        from dbcore.db import SessionLocal
+        from dbcore.models import Membership, User
+
+        from .auth_utils import session_token, verify_session
+
+        token = session_token()
+        if token:
+            claims = verify_session(token)
+            with SessionLocal() as session:
+                account_id = session.scalar(
+                    select(Membership.account_id)
+                    .join(User, User.id == Membership.user_id)
+                    .where(User.identity_id == claims["sub"])
+                    .order_by(Membership.created_at)
+                )
+            distinct = str(account_id) if account_id else claims["sub"]
+    except Exception:
+        pass
     return jsonify({"flags": resolve_all(distinct)})

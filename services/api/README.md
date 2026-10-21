@@ -10,7 +10,7 @@ services/api/
 ├── api/
 │   ├── app.py              # create_app() factory + error handlers + health
 │   ├── extensions.py       # Flask-Limiter (Redis-backed)
-│   ├── auth_utils.py       # password hashing, JWT, @require_auth / @require_api_key
+│   ├── auth_utils.py       # accounts session verification + JIT provisioning, @require_auth / @require_api_key
 │   ├── serializers.py      # ORM -> JSON (CONTRACT.md shapes)
 │   ├── errors.py           # ApiError -> {"error": {...}}
 │   └── blueprints/         # auth, links, analytics, account, apikeys, billing
@@ -23,15 +23,16 @@ lives in the repo-root `dbcore/` package and is imported, never re-implemented.
 
 ## Auth
 
-- **Dashboard:** `Authorization: Bearer <JWT>` (HS256, TTL `ACCESS_TOKEN_TTL_MIN`).
-  Refresh tokens are opaque and stored **hashed** (sha256) in `refresh_tokens`.
-  Passwords hashed with argon2.
+- **Dashboard:** the accounts.3m4.net session (`3m4_session` cookie or the same
+  EdDSA JWT as a bearer), verified against the accounts JWKS by the vendored
+  `dbcore/m4session.py`. No passwords, no refresh tokens here; unknown identities
+  are provisioned on first request (user + workspace + owner membership).
 - **Public API:** `X-API-Key: m4_live_...` (looked up by sha256 hash). The
   `/links` endpoints accept either method.
 
 ## Endpoints (all under `/api`)
 
-- `auth`: `register`, `login`, `refresh`, `logout`, `me`
+- `auth`: `me` (register / login / logout live at accounts.3m4.net)
 - `links`: list/create/get/patch/delete, `:id/qr.png`, `:id/analytics`
 - `account/usage`, `analytics/overview`
 - `apikeys`: list/create/delete

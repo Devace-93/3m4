@@ -16,13 +16,34 @@ services, and the Qwik frontend. All services build against it. Keep it in sync.
 Frontend tooling is **Bun** (`bun install`, `bun run build`, `bun run dev`). Image: `oven/bun`.
 
 ## Auth
-- JWT bearer. `Authorization: Bearer <access_token>`.
-- Access token TTL ~30 min; refresh token (opaque, stored hashed in DB) ~30 days.
-- Public API uses API keys: header `X-API-Key: m4_live_...` (maps to an account).
+- **Identity lives in accounts.3m4.net** (shared by every 3m4 app; contract:
+  `accounts/CONTRACT.md`). Register, log in (password, magic link, Google /
+  GitHub / Microsoft / Discord), verify e-mail, profile, avatar and logout all
+  happen there. This app has no passwords and no refresh tokens.
+- Dashboard: the accounts session JWT (EdDSA) arrives in the `3m4_session`
+  cookie (`Domain=.3m4.net`, 15 min, refreshed by the browser against
+  `${ACCOUNTS_URL}/api/session/refresh`) or as `Authorization: Bearer <jwt>`.
+  The API verifies it locally with the JWKS at
+  `${ACCOUNTS_INTERNAL_URL}/.well-known/jwks.json` (issuer `ACCOUNTS_URL`,
+  audience `3m4`).
+- First request of an unknown `sub` ⇒ just-in-time provisioning: `users`
+  row (`identity_id` = `sub`, email / handle / name / avatar_url mirrored
+  from the claims and refreshed on every request) + `accounts` row
+  (`"{handle}'s workspace"`, plan free) + owner membership. Gated by the
+  `signups` switch (403 `signups_disabled`).
+- Errors: 401 `no_session` (nothing presented ⇒ the web app sends the visitor
+  to `${ACCOUNTS_URL}/login?return_to=`), 401 `session_expired` (client
+  refreshes once and retries), 401 `invalid_session`, 403 `email_unverified`
+  (every session route except `GET /auth/me`, which the dashboard uses to
+  render the "verify your e-mail" banner).
+- `/login` and `/signup` on the web app are 302 redirects to the accounts
+  pages with `return_to` set to the dashboard.
+- Public API uses API keys: header `X-API-Key: m4_live_...` (or the same key
+  as a bearer; maps to an account). Unchanged by the identity move.
 
 ### Authorization (RBAC)
 - Every API key has a **role** (`viewer` | `editor` | `admin`) chosen at creation. Roles → scopes live in `packages/shared/api_key_roles.json` (shared by API, dashboard and MCP server).
-- Scopes: `links:read`, `links:write`, `links:delete`, `analytics:read`, `usage:read`, `audit:read`. Dashboard JWT sessions hold every scope.
+- Scopes: `links:read`, `links:write`, `links:delete`, `analytics:read`, `usage:read`, `audit:read`. Dashboard (accounts) sessions hold every scope.
 - Each endpoint below names its scope. Missing scope → **403** `{ "error": { "code": "insufficient_scope", "message", "required_scope", "role" } }` and an `auth.denied` audit event.
 - Audit: mutations (`link.create|update|delete`, `apikey.create|revoke`) and denials are appended to `audit_events` in the same transaction.
 
@@ -30,11 +51,8 @@ Frontend tooling is **Bun** (`bun install`, `bun run build`, `bun run dev`). Ima
 Responses are JSON. Errors: `{ "error": { "code": "string", "message": "string" } }`.
 
 ### Auth
-- `POST /auth/register` `{email, password, account_name?}` → `{user, account, access_token, refresh_token}` (201)
-- `POST /auth/login` `{email, password}` → `{user, account, access_token, refresh_token}`
-- `POST /auth/refresh` `{refresh_token}` → `{access_token}`
-- `POST /auth/logout` `{refresh_token}` → 204
-- `GET  /auth/me` → `{user, account, plan, limits, usage}`
+- `GET /auth/me` → `{user: {id, identity_id, email, email_verified, handle, name, avatar_url, created_at}, account, plan, limits, usage, flags}` — session (verified or not). Everything else about the identity is at accounts.3m4.net (`/api/me`, `/profile`).
+- `GET /flags` → `{flags}` — public; a valid session cookie upgrades the targeting bucket to the account.
 
 ### Links
 - `GET    /links?page=1&per_page=20&q=` → `{items:[Link], page, per_page, total}` — scope `links:read`

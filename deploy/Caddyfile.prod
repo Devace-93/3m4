@@ -134,6 +134,34 @@ smart-docs.3m4.net {
 	reverse_proxy smart-docs-api-1:8000
 }
 
+# accounts (identity / SSO for every 3m4 app): /opt/accounts, compose project
+# `accounts`. The JWKS and the avatars are fetched by every relying app;
+# /session.js is embedded by the static sites, so it is served cacheable and
+# CORS-open. Credentialed CORS for /api/* is handled by the API itself
+# (ALLOWED_ORIGINS), not here.
+accounts.3m4.net {
+	handle /api/* {
+		reverse_proxy accounts-api-1:5000
+	}
+	@apiRoot path /.well-known/* /avatars/* /healthz
+	handle @apiRoot {
+		reverse_proxy accounts-api-1:5000
+	}
+	@widget path /session.js
+	handle @widget {
+		header {
+			Cache-Control "public, max-age=300"
+			Access-Control-Allow-Origin "*"
+			# defer: replace the upstream Cache-Control instead of adding a second one
+			defer
+		}
+		reverse_proxy accounts-web-1:3000
+	}
+	handle {
+		reverse_proxy accounts-web-1:3000
+	}
+}
+
 # ── Static side apps ──────────────────────────────────────────────────────────
 # Uncomment per app once its files are rsynced to /srv/static/<app> on the host
 # and the /srv/static volume mount is enabled in docker-compose.prod.yml.

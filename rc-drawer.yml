@@ -1,0 +1,370 @@
+- generic [active] [ref=f95e4]:
+  - generic [ref=f95e6]:
+    - main [ref=f95e12]:
+      - generic:
+        - button "Skip to content"
+      - generic [ref=f95e18]:
+        - generic [ref=f95e19]:
+          - generic [ref=f95e21]:
+            - heading "Today" [level=1] [ref=f95e23]
+            - button "Pay out funds" [disabled] [ref=f95e26]
+          - separator [ref=f95e27]
+          - generic [ref=f95e28]:
+            - generic [ref=f95e35]:
+              - generic [ref=f95e36]:
+                - generic [ref=f95e845]:
+                  - generic [ref=f95e847]:
+                    - button "Gross volume" [ref=f95e850] [cursor=pointer]
+                    - generic [ref=f95e854]: $0.00
+                    - generic [ref=f95e856]: 9:56 AM
+                  - button "Select date" [ref=f95e863] [cursor=pointer]:
+                    - generic [ref=f95e864]: Yesterday
+                - generic [ref=f95e868]:
+                  - generic [ref=f95e869]:
+                    - figure [ref=f95e899]
+                    - figure [ref=f95e902]
+                  - generic [ref=f95e903]:
+                    - generic [ref=f95e904]: 12:00 AM
+                    - generic [ref=f95e906]: 11:59 PM
+              - generic [ref=f95e49]:
+                - generic [ref=f95e50]:
+                  - generic [ref=f95e51]: MXN balance
+                  - link "View balance details" [ref=f95e53] [cursor=pointer]:
+                    - /url: /acct_1TrRf34IZKp0OOCq/balance/overview?currency=mxn
+                    - text: View
+                - generic [ref=f95e54]: $0.00
+            - generic [ref=f95e57]:
+              - generic [ref=f95e58]:
+                - paragraph [ref=f95e59]: Recommendations
+                - button [ref=f95e61] [cursor=pointer]:
+                  - img "Remove section" [ref=f95e62]
+              - generic [ref=f95e64]:
+                - generic [ref=f95e70]:
+                  - generic [ref=f95e72]:
+                    - generic [ref=f95e73]: Set up hosting, databases, auth, analytics, AI, and more from dozens of providers—without switching tabs.
+                    - link "Try Stripe Projects" [ref=f95e74] [cursor=pointer]:
+                      - /url: https://docs.stripe.com/projects
+                  - generic [ref=f95e76]:
+                    - generic [ref=f95e77]: Convert more customers with 125+ payment methods, including BNPL, bank debits, and stablecoins.
+                    - link "Add payment methods" [ref=f95e78] [cursor=pointer]:
+                      - /url: /acct_1TrRf34IZKp0OOCq/settings/payment_methods
+                - generic [ref=f95e79]:
+                  - generic [ref=f95e80]:
+                    - paragraph [ref=f95e81]: API keys
+                    - link "View docs" [ref=f95e83] [cursor=pointer]:
+                      - /url: https://docs.stripe.com/keys
+                  - generic [ref=f95e88]:
+                    - paragraph [ref=f95e89]: Set up integrations with secret and publishable keys.
+                    - separator [ref=f95e90]
+                    - generic [ref=f95e91]:
+                      - paragraph [ref=f95e92]: Secret key
+                      - button [ref=f95e908] [cursor=pointer]:
+                        - paragraph [ref=f95e909]: ••••••••••••
+                    - generic [ref=f95e98]:
+                      - paragraph [ref=f95e99]: Publishable key
+                      - button "pk_live_...9Ijw" [ref=f95e913] [cursor=pointer]
+                    - separator [ref=f95e105]
+                    - link "Go to API keys" [ref=f95e107] [cursor=pointer]:
+                      - /url: /acct_1TrRf34IZKp0OOCq/apikeys
+        - generic [ref=f95e109]:
+          - heading "Your overview" [level=1] [ref=f95e111]
+          - generic [ref=f95e112]:
+            - toolbar "Account charts controls" [ref=f95e113]:
+              - listitem "Select date" [ref=f95e116] [cursor=pointer]:
+                - generic [ref=f95e117]:
+                  - generic [ref=f95e118]:
+                    - term [ref=f95e119]: Date range
+                    - separator [ref=f95e120]
+                    - definition [ref=f95e121]: Last 7 days
+                  - button "Edit Date range" [ref=f95e122]
+              - listitem [ref=f95e125] [cursor=pointer]:
+                - generic [ref=f95e126]:
+                  - generic [ref=f95e127]: Daily
+                  - button "Edit" [ref=f95e128]
+              - listitem [ref=f95e132] [cursor=pointer]:
+                - generic [ref=f95e133]:
+                  - generic [ref=f95e134]:
+                    - term [ref=f95e135]: Compare
+                    - separator [ref=f95e136]
+                    - definition [ref=f95e137]: Previous period
+                  - button "Edit Compare" [ref=f95e138]
+                - button "Remove Compare" [ref=f95e141]
+            - toolbar "Modify tiles" [ref=f95e146]:
+              - button "Add" [ref=f95e147] [cursor=pointer]
+              - button "Edit" [ref=f95e151] [cursor=pointer]
+          - list "Account charts" [ref=f95e156]:
+            - listitem "Account chart" [ref=f95e157]:
+              - generic [ref=f95e161]:
+                - generic [ref=f95e164]:
+                  - generic [ref=f95e165]: Payments
+                  - button [ref=f95e167] [cursor=pointer]:
+                    - img "Info" [ref=f95e168]
+                - generic [ref=f95e172]: No data
+            - listitem "Account chart" [ref=f95e208]:
+              - generic [ref=f95e212]:
+                - generic [ref=f95e214]:
+                  - generic [ref=f95e216]:
+                    - generic [ref=f95e217]:
+                      - heading "Gross volume" [level=3] [ref=f95e219]
+                      - generic "MX$0.00" [ref=f95e226]
+                      - generic [ref=f95e227]: MX$0.00 previous period
+                    - toolbar [ref=f95e231]:
+                      - button "Share" [ref=f95e233] [cursor=pointer]
+                      - link [ref=f95e236] [cursor=pointer]:
+                        - /url: /acct_1TrRf34IZKp0OOCq/sigma/queries/templates/Gross%20Volume?originId=account_home_gross_volume_line_chart&autorun=direct_from_chart
+                  - generic [ref=f95e241]:
+                    - generic "MX$0" [ref=f95e247]
+                    - generic [ref=f95e253]:
+                      - generic "Aug 24" [ref=f95e254]
+                      - generic "Aug 30" [ref=f95e256]
+                - generic [ref=f95e259]:
+                  - generic "Updated 6 seconds ago" [ref=f95e262]
+                  - link "View Gross volume details" [ref=f95e264] [cursor=pointer]:
+                    - /url: /acct_1TrRf34IZKp0OOCq/payments?created[gte]=1787551200&created[lte]=1788155999
+                    - text: More details
+            - listitem "Account chart" [ref=f95e265]:
+              - generic [ref=f95e269]:
+                - generic [ref=f95e271]:
+                  - generic [ref=f95e273]:
+                    - generic [ref=f95e274]:
+                      - heading "Net volume" [level=3] [ref=f95e276]
+                      - generic "MX$0.00" [ref=f95e283]
+                      - generic [ref=f95e284]: MX$0.00 previous period
+                    - button "Share" [ref=f95e289] [cursor=pointer]
+                  - generic [ref=f95e294]:
+                    - generic "MX$0" [ref=f95e300]
+                    - generic [ref=f95e306]:
+                      - generic "Aug 24" [ref=f95e307]
+                      - generic "Aug 30" [ref=f95e309]
+                - generic [ref=f95e312]:
+                  - generic "Updated 6 seconds ago" [ref=f95e315]
+                  - link "View Net volume details" [ref=f95e317] [cursor=pointer]:
+                    - /url: /acct_1TrRf34IZKp0OOCq/reports/net-volume?t=last7Days&g=day&cmp=previousPeriod
+                    - text: More details
+            - listitem "Account chart" [ref=f95e318]
+            - listitem "Account chart" [ref=f95e323]
+            - listitem "Account chart" [ref=f95e328]
+            - status [ref=f95e333]
+    - paragraph [ref=f95e335]
+  - generic:
+    - generic:
+      - iframe
+    - generic:
+      - generic [ref=f95e336]:
+        - button "Account options and switcher, current account is 3m4" [ref=f95e340] [cursor=pointer]:
+          - generic [ref=f95e341]: "3"
+          - generic [ref=f95e345]: 3m4
+        - navigation [ref=f95e352]:
+          - region "Core navigation links" [ref=f95e353]:
+            - list "Core navigation links" [ref=f95e354]:
+              - listitem [ref=f95e355]:
+                - link "Home" [ref=f95e356] [cursor=pointer]:
+                  - /url: /acct_1TrRf34IZKp0OOCq/dashboard
+              - listitem [ref=f95e364]:
+                - link "Balances" [ref=f95e365] [cursor=pointer]:
+                  - /url: /acct_1TrRf34IZKp0OOCq/balance/overview
+              - listitem [ref=f95e374]:
+                - link "Transactions" [ref=f95e375] [cursor=pointer]:
+                  - /url: /acct_1TrRf34IZKp0OOCq/payments
+              - listitem [ref=f95e383]:
+                - link "Customers" [ref=f95e384] [cursor=pointer]:
+                  - /url: /acct_1TrRf34IZKp0OOCq/customers
+              - listitem [ref=f95e392]:
+                - link "Product catalog" [ref=f95e393] [cursor=pointer]:
+                  - /url: /acct_1TrRf34IZKp0OOCq/products?active=true
+          - region "Shortcuts" [ref=f95e401]:
+            - generic [ref=f95e402]:
+              - text: Shortcuts
+              - button "Manage shortcuts" [ref=f95e403] [cursor=pointer]
+            - list "Shortcuts" [ref=f95e406]:
+              - listitem [ref=f95e407]:
+                - link "Invoices" [ref=f95e408] [cursor=pointer]:
+                  - /url: /acct_1TrRf34IZKp0OOCq/invoices
+                - button "Unpin Invoices"
+              - listitem [ref=f95e416]:
+                - link "Subscriptions" [ref=f95e417] [cursor=pointer]:
+                  - /url: /acct_1TrRf34IZKp0OOCq/subscriptions?status=active
+                - button "Unpin Subscriptions"
+              - listitem [ref=f95e425]:
+                - link "Apps overview" [ref=f95e426] [cursor=pointer]:
+                  - /url: /acct_1TrRf34IZKp0OOCq/apps/installed
+                - button "Pin Apps overview"
+          - region "Products" [ref=f95e435]:
+            - list "Products" [ref=f95e437]:
+              - listitem [ref=f95e438]:
+                - button "Payments" [ref=f95e440] [cursor=pointer]
+              - listitem [ref=f95e450]:
+                - button "Billing" [ref=f95e452] [cursor=pointer]
+              - listitem [ref=f95e462]:
+                - button "Reporting" [ref=f95e464] [cursor=pointer]
+              - listitem [ref=f95e475]:
+                - button "Apps" [ref=f95e477] [cursor=pointer]
+              - listitem [ref=f95e486]:
+                - button "More" [ref=f95e488] [cursor=pointer]
+          - region "Developer links" [ref=f95e498]:
+            - list "Developer links"
+      - button "Toggle navigation menu" [expanded] [ref=f95e499] [cursor=pointer]
+      - generic [ref=f95e505]:
+        - search [ref=f95e507]:
+          - generic [ref=f95e509]:
+            - generic [ref=f95e510]: Search
+            - generic [ref=f95e516]:
+              - combobox "Search" [ref=f95e517]
+              - generic [ref=f95e518]: /
+        - generic [ref=f95e521]:
+          - generic [ref=f95e522]:
+            - button "RevenueCat" [ref=f95e523] [cursor=pointer]
+            - button "Apps" [ref=f95e527] [cursor=pointer]
+          - button "Help" [ref=f95e531] [cursor=pointer]
+          - button "Notifications" [ref=f95e538] [cursor=pointer]
+          - link "Settings" [ref=f95e541] [cursor=pointer]:
+            - /url: /acct_1TrRf34IZKp0OOCq/settings
+          - button "Create" [ref=f95e545] [cursor=pointer]
+    - dialog [ref=f95e549]:
+      - generic [ref=f95e553]:
+        - generic [ref=f95e557]:
+          - generic "RevenueCat" [ref=f95e560]
+          - generic:
+            - generic:
+              - button "More" [ref=f95e564] [cursor=pointer]
+              - button "Close" [ref=f95e574] [cursor=pointer]
+        - generic [ref=f95e924]:
+          - generic [ref=f95e925]: Get started
+          - generic [ref=f95e928]:
+            - generic [ref=f95e929]:
+              - img "RevenueCat" [ref=f95e930]
+              - img "Stripe" [ref=f95e933]
+            - generic [ref=f95e934]: Connect your RevenueCat account with Stripe to enrich customer information with subscription data.
+            - link "Sign in with RevenueCat" [ref=f95e935] [cursor=pointer]:
+              - /url: https://app.revenuecat.com/authenticate-stripe?sig=t=1788105412,v1=8af6672742cf0abcf1081a4f003daaa34a6358b3d70b143b2c911850a0a03a1a&account_id=acct_1TrRf34IZKp0OOCq&user_id=usr_Ur9zrZEcyMr0U7&version=0.1.19&return_url=dashboard.stripe.com/dashboard
+            - generic [ref=f95e939]:
+              - text: Don't have an account?
+              - link "Sign up" [ref=f95e940] [cursor=pointer]:
+                - /url: https://app.revenuecat.com/signup
+    - generic [ref=f95e587]:
+      - generic [ref=f95e588] [cursor=pointer]:
+        - heading "Setup guide" [level=2] [ref=f95e589]
+        - generic [ref=f95e590]:
+          - button "Edit setup guide" [ref=f95e591]
+          - generic [ref=f95e594]:
+            - button "Minimize setup guide" [expanded] [ref=f95e595]
+            - button "Close setup guide" [ref=f95e596]
+      - generic [ref=f95e602]:
+        - region:
+          - generic [ref=f95e603]:
+            - generic [ref=f95e604]: "Next:"
+            - button "Choose a pricing model" [ref=f95e605] [cursor=pointer]
+        - region "Minimize setup guide" [ref=f95e606]:
+          - generic [ref=f95e608]:
+            - generic [ref=f95e609]:
+              - button [expanded] [ref=f95e610] [cursor=pointer]:
+                - heading "Set up recurring payments" [level=3] [ref=f95e611]
+              - region "Set up recurring payments" [ref=f95e614]:
+                - list [ref=f95e616]:
+                  - listitem [ref=f95e617]:
+                    - button [ref=f95e618] [cursor=pointer]:
+                      - progressbar "Not Started" [ref=f95e620]
+                      - paragraph [ref=f95e624]: Choose a pricing model
+                  - listitem [ref=f95e625]:
+                    - button [disabled] [ref=f95e626]:
+                      - paragraph [ref=f95e633]: Choose how to accept recurring payments
+                  - listitem [ref=f95e634]:
+                    - button [disabled] [ref=f95e635]:
+                      - paragraph [ref=f95e642]: Create a recurring product
+            - generic [ref=f95e643]:
+              - button [ref=f95e644] [cursor=pointer]:
+                - heading "Set up payments" [level=3] [ref=f95e645]
+              - region "Set up payments":
+                - list [ref=f95e648]:
+                  - listitem [ref=f95e649]:
+                    - button [ref=f95e650] [cursor=pointer]:
+                      - progressbar "Not Started" [ref=f95e652]
+                      - paragraph [ref=f95e656]: Choose how to accept payments
+                  - listitem [ref=f95e657]:
+                    - button [ref=f95e658] [cursor=pointer]:
+                      - progressbar "Not Started" [ref=f95e660]
+                      - paragraph [ref=f95e664]: Create a non-recurring product
+            - generic [ref=f95e665]:
+              - button [ref=f95e666] [cursor=pointer]:
+                - heading "Set up invoices" [level=3] [ref=f95e667]
+              - region "Set up invoices":
+                - list [ref=f95e670]:
+                  - listitem [ref=f95e671]:
+                    - button [ref=f95e672] [cursor=pointer]:
+                      - progressbar "Not Started" [ref=f95e674]
+                      - paragraph [ref=f95e678]: Add your branding
+                  - listitem [ref=f95e679]:
+                    - button [ref=f95e680] [cursor=pointer]:
+                      - progressbar "Complete" [ref=f95e682]
+                      - paragraph [ref=f95e687]: Create a customer
+                  - listitem [ref=f95e688]:
+                    - button [ref=f95e689] [cursor=pointer]:
+                      - progressbar "Not Started" [ref=f95e691]
+                      - paragraph [ref=f95e695]: Create an invoice
+                  - listitem [ref=f95e696]:
+                    - button [ref=f95e697] [cursor=pointer]:
+                      - progressbar "Not Started" [ref=f95e699]
+                      - paragraph [ref=f95e703]: Set up reminders
+            - generic [ref=f95e704]:
+              - button [ref=f95e705] [cursor=pointer]:
+                - heading "Verify your account" [level=3] [ref=f95e706]
+              - region "Verify your account":
+                - list [ref=f95e709]:
+                  - listitem [ref=f95e710]:
+                    - button [ref=f95e711] [cursor=pointer]:
+                      - progressbar "Complete" [ref=f95e713]
+                      - paragraph [ref=f95e718]: Verify your email
+                  - listitem [ref=f95e719]:
+                    - button [ref=f95e720] [cursor=pointer]:
+                      - progressbar "Complete" [ref=f95e722]
+                      - paragraph [ref=f95e727]: Verify your business
+                  - listitem [ref=f95e728]:
+                    - button [ref=f95e729] [cursor=pointer]:
+                      - progressbar "Not Started" [ref=f95e731]
+                      - paragraph [ref=f95e735]: Create your Stripe profile
+            - generic [ref=f95e736]:
+              - button [ref=f95e737] [cursor=pointer]:
+                - heading "Go live" [level=3] [ref=f95e738]
+              - region "Go live":
+                - list [ref=f95e741]:
+                  - listitem [ref=f95e742]:
+                    - button [ref=f95e743] [cursor=pointer]:
+                      - progressbar "Not Started" [ref=f95e745]
+                      - paragraph [ref=f95e749]: Create a live customer
+            - generic [ref=f95e750]:
+              - button [ref=f95e751] [cursor=pointer]:
+                - heading "Set up tax collection" [level=3] [ref=f95e752]
+              - region "Set up tax collection":
+                - list [ref=f95e755]:
+                  - listitem [ref=f95e756]:
+                    - button [ref=f95e757] [cursor=pointer]:
+                      - progressbar "Complete" [ref=f95e759]
+                      - paragraph [ref=f95e764]: Enable Tax
+                  - listitem [ref=f95e765]:
+                    - button [ref=f95e766] [cursor=pointer]:
+                      - progressbar "Complete" [ref=f95e768]
+                      - paragraph [ref=f95e773]: Review your head office address
+                  - listitem [ref=f95e774]:
+                    - button [ref=f95e775] [cursor=pointer]:
+                      - progressbar "Complete" [ref=f95e777]
+                      - paragraph [ref=f95e782]: Choose a default tax code
+                  - listitem [ref=f95e783]:
+                    - button [ref=f95e784] [cursor=pointer]:
+                      - progressbar "Not Started" [ref=f95e786]
+                      - paragraph [ref=f95e790]: Add a tax registration
+                  - listitem [ref=f95e791]:
+                    - button [ref=f95e792] [cursor=pointer]:
+                      - progressbar "Not Started" [ref=f95e794]
+                      - paragraph [ref=f95e798]: Configure tax on your transactions
+        - region "Minimize setup guide"
+    - button "Show Workbench" [ref=f95e802] [cursor=pointer]:
+      - button "Developers" [ref=f95e805]
+      - generic [ref=f95e812]:
+        - generic [ref=f95e813]:
+          - button "Inspect" [ref=f95e816]
+          - button "Health" [ref=f95e822]
+          - button "API activity" [ref=f95e828]
+          - button "Event deliveries" [ref=f95e833]
+        - button "Open Workbench" [ref=f95e839]
+  - generic:
+    - iframe

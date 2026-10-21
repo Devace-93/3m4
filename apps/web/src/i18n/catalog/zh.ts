@@ -11,6 +11,9 @@ const zh: PartialCatalog = {
   "nav.signup": "免费注册",
   "nav.dashboard": "控制台",
   "nav.logout": "退出登录",
+  "nav.profile": "个人资料",
+  "auth.unverifiedBanner": "请确认你的邮箱地址（{email}）以创建链接和 API 密钥。",
+  "auth.resendAt": "立即验证",
   "nav.openMenu": "打开菜单",
   "nav.closeMenu": "关闭菜单",
   "nav.links": "链接",
@@ -215,27 +218,8 @@ const zh: PartialCatalog = {
   "common.name": "名称",
 
   // Auth: login
-  "auth.loginTitle": "登录",
-  "auth.loginSubtitle": "欢迎回到 3m4。",
-  "auth.loginFailed": "登录失败。请检查邮箱和密码。",
-  "auth.loggingIn": "登录中…",
-  "auth.noAccount": "还没有账户？",
-  "auth.signUp": "注册",
 
   // Auth: signup
-  "auth.signupTitle": "创建账户",
-  "auth.signupFailed": "注册失败。请重试。",
-  "auth.inviteOnlyTitle": "🔒 目前仅限邀请注册",
-  "auth.inviteOnlyBody": "我们正在逐步开放。敬请关注，名额很快就会开放。",
-  "auth.haveAccount": "已有账户？",
-  "auth.logIn": "登录",
-  "auth.earlyAccessPitch": "抢先体验：全部功能，免费。无需信用卡。",
-  "auth.freePitch": "永久免费：每月 50 个链接和 1,000 次跟踪点击。",
-  "auth.workspaceName": "工作区名称",
-  "auth.workspacePlaceholder": "Acme 公司",
-  "auth.passwordHint": "至少 8 个字符。",
-  "auth.creatingAccount": "正在创建账户…",
-  "auth.createAccount": "创建账户",
 
   // Dashboard: links list
   "dash.title": "你的链接",

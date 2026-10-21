@@ -18,7 +18,7 @@ Owner: Enrique Magallon Alvarez. License: **MIT** (open-source core, self-hostab
 | Billing | RevenueCat Web Billing (Stripe underneath); entitlements `pro`, `team` |
 | Product analytics | PostHog (frontend SDK + server-side `posthog-python`) |
 | Redirect status | **302 default**, per-link `301` override (accurate click analytics by default) |
-| Auth | **Roll-your-own** Flask + JWT (access) + refresh tokens in Postgres. No vendor lock-in. WorkOS reserved for enterprise SSO (Phase 5) |
+| Auth | **Shared identity service** `accounts.3m4.net` (own repo): EdDSA session cookie on `.3m4.net`, verified locally via JWKS; password, magic link, Google / GitHub / Microsoft / Discord, e-mail verification, avatars all live there. This app only mirrors identities (JIT provisioning). Replaced the roll-your-own JWT on 2026-10-16 |
 | Tenancy | **Account/org is the billing unit from day 1**; users join via `memberships` + roles. RC `app_user_id = account_id` |
 | Short-link domain | **Apex `3m4.net/<code>`**, shared with marketing/reserved paths via reserved-slug blocklist |
 | IP storage | **Never store raw IPs.** Hash (salted + truncated) → derive geo only, then discard |
@@ -63,7 +63,7 @@ Caddy (reverse proxy, auto-HTTPS, on-demand TLS for custom domains)
 - **redirect**: minimal deps; cache lookup (Redis→PG), push raw click event to queue, return redirect immediately. Reads per-link `redirect_type`.
 - **worker**: consumes click events → geo (GeoLite2) + UA parse + referrer host → batch insert `clicks`, bump `usage_counters`, update `click_daily_rollup`, prune by retention.
 - **api**: Flask blueprints `auth`, `links`, `analytics`, `domains`, `apikeys`, `billing`. `billing` is conditionally registered via `BILLING_ENABLED` so the self-host build omits RevenueCat entirely.
-- **Stateless**: JWT access + DB refresh tokens; no local sessions/files. QR generated on demand or cached to object storage. Any instance serves any request.
+- **Stateless**: accounts session JWT verified with a cached JWKS; no local sessions/files. QR generated on demand or cached to object storage. Any instance serves any request.
 
 ### Repo layout (monorepo)
 ```
@@ -86,7 +86,7 @@ README.md
 Account = billing entity; users join via memberships.
 
 - **accounts** — id, name, plan (`free|pro|team|enterprise`), created_at
-- **users** — id, email, password_hash, created_at
+- **users** — id, identity_id (accounts `sub`), email, handle, name, avatar_url, email_verified_at, created_at, updated_at (mirror of the accounts identity; no password)
 - **memberships** — account_id, user_id, role (`owner|admin|member`)
 - **subscriptions** — account_id, rc_app_user_id, entitlement (`pro|team`), product_id, period (`monthly|annual`), status, current_period_start/end, will_renew, raw_payload
 - **links** — id, account_id, domain_id (NULL=apex), short_code, destination_url, redirect_type (`301|302`), title, created_by, created_at, expires_at, active — `UNIQUE(domain_id, short_code)`
