@@ -2,6 +2,20 @@
 
 One CX22 (2 vCPU / 4 GB, Ubuntu 24.04) runs the whole stack via docker compose.
 
+**Already deployed before the accounts migration?** Append these to `.env` and rebuild
+(the public accounts URL is baked into the web bundle at build time):
+
+```
+ACCOUNTS_URL=https://accounts.3m4.net
+ACCOUNTS_INTERNAL_URL=http://accounts-api-1:5000
+VITE_ACCOUNTS_URL=https://accounts.3m4.net
+PROTOCOL_HEADER=x-forwarded-proto
+```
+then `docker compose --env-file ../.env -f docker-compose.yml -f docker-compose.prod.yml up -d --build web api`
+from `deploy/`. Without `ACCOUNTS_URL` the API rejects every session (issuer mismatch);
+without `PROTOCOL_HEADER` the login redirect carries an `http://` return address that
+accounts refuses, so users land on their profile instead of the dashboard.
+
 ## First-time setup
 
 1. **Create server** at console.hetzner.cloud: CX22, Ubuntu 24.04, your SSH key,
