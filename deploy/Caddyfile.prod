@@ -182,3 +182,11 @@ accounts.3m4.net {
 # 	encode gzip
 # 	file_server
 # }
+
+# wars (real-time strategy game): /opt/wars, same pattern. One Rust server
+# answers REST and the WebSocket (/ws); nothing else to route.
+wars.3m4.net {
+	handle {
+		reverse_proxy wars-server-1:8086
+	}
+}
