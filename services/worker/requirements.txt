@@ -7,3 +7,5 @@ redis==6.4.0
 user-agents==2.2.0
 geoip2==5.2.0
 posthog==7.20.2
+# CA bundle: 2026.10.19 drops the emSign roots whose intermediate keys were compromised (Oct 2026).
+certifi==2026.10.19
