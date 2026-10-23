@@ -184,8 +184,10 @@ accounts.3m4.net {
 # }
 
 # wars (real-time strategy game): /opt/wars, same pattern. One Rust server
-# answers REST and the WebSocket (/ws); nothing else to route.
+# answers REST, the WebSocket (/ws) and the browser build (/play/, a 6.7 MB wasm
+# that compresses to about a third, hence encode).
 wars.3m4.net {
+	encode zstd gzip
 	handle {
 		reverse_proxy wars-server-1:8086
 	}
