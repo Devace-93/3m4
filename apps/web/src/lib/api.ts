@@ -17,6 +17,7 @@ import type {
   ApiError,
   ApiKey,
   ApiKeyRole,
+  BillingStatus,
   Link,
   MeResponse,
   Paginated,
@@ -91,6 +92,7 @@ export async function apiFetch<T>(
 /* ─── Auth (identity lives at accounts.3m4.net; this is the tenant view) ── */
 export const api = {
   me: () => apiFetch<MeResponse>("/auth/me"),
+  billingStatus: () => apiFetch<BillingStatus>("/billing/status"),
 
   /* ─── Feature flags (public; anonymous pages like /signup) ──────────── */
   flags: () =>

@@ -70,7 +70,7 @@ The `migrate` service creates tables and seeds the reserved slugs (including the
 ### Self-host (no billing)
 
 ```bash
-# sets BILLING_ENABLED=false; RevenueCat is never contacted, paywalls hidden
+# sets BILLING_ENABLED=false; payments.3m4.net is never contacted, paywalls hidden
 make up-selfhost
 ```
 
@@ -84,9 +84,14 @@ make up-selfhost
 | `make seed` | re-seed reserved slugs |
 | `make build` | rebuild images |
 | `make ps` | service status |
+| `make test` | run the API pytest suite against disposable Postgres/Redis containers |
+| `make reconcile-billing` | pull the last 2 days of subscriptions from payments.3m4.net once |
 | `make e2e` | run the Playwright end-to-end suite against the running stack |
 
 ## Tests
+
+Backend tests live in `services/api/tests` (pytest; `make test` starts throwaway
+Postgres/Redis containers on ports 55436/56436 and runs them, no stack needed).
 
 End-to-end tests live in [`e2e/`](e2e/) (Playwright, Bun). They run against a
 running stack (`make up`), cover the critical paths (sign-up/login, links +
@@ -101,7 +106,8 @@ make e2e                      # or: cd e2e && bun install && bun run test
 
 All config is environment-driven — see [`.env.example`](.env.example). Key values:
 `DATABASE_URL`, `REDIS_URL`, `ACCOUNTS_URL` / `ACCOUNTS_INTERNAL_URL`, `IP_HASH_SALT`, `BILLING_ENABLED`,
-`REVENUECAT_WEBHOOK_AUTH_TOKEN`, `POSTHOG_API_KEY`, `RESUME_REDIRECT_URL`.
+`PAYMENTS_URL` / `PAYMENTS_INTERNAL_URL` / `PAYMENTS_SERVICE_KEY` / `PAYMENTS_WEBHOOK_SECRET`
+(billing through the payments.3m4.net portal, see `deploy/PRODUCTION.md`), `POSTHOG_API_KEY`, `RESUME_REDIRECT_URL`.
 
 ## AI agents (MCP)
 

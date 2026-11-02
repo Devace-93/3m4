@@ -176,13 +176,17 @@ const de: PartialCatalog = {
   "sponsors.emptyBody": "Jedes Pro / Supporter-Abo bekommt hier einen Platz und ein einbettbares Badge.",
   "sponsors.emptyBodyEarly":
     "Supporter-Abos starten zusammen mit den kostenpflichtigen Tarifen, nach dem Early Access. Bis dahin ist jedes Konto kostenlos.",
-  "sponsors.tierSupporter": "{tier}-Supporter",
   "sponsors.badgeTitle": "Das Supporter-Badge",
   "sponsors.badgeBody": "Pro-Supporter bekommen ein einbettbares Badge für ihre Website oder README:",
   "sponsors.badgeBodyEarly": "Pro-Supporter werden ein einbettbares Badge für ihre Website oder README bekommen:",
   "sponsors.badgeLabel": "3m4-Supporter",
   "sponsors.readPlans": "Mehr über die kommenden Tarife",
   "sponsors.become": "Supporter werden",
+  "sponsors.tierPro": "Pro-Supporter",
+  "sponsors.tierTeam": "Team-Supporter",
+  "sponsors.tierDonor": "Supporter",
+  "sponsors.since": "seit {date}",
+  "sponsors.donateIntro": "Lieber einmalig? Spendier mir einen Kaffee – Spender, die zustimmen, erscheinen ebenfalls hier.",
 
   // Projects
   "projects.title": "Projekte",
@@ -316,12 +320,9 @@ const de: PartialCatalog = {
   "billing.currentPlan": "Aktueller Tarif",
   "billing.processing": "Wird verarbeitet…",
   "billing.upgradeTo": "Auf {plan} upgraden",
-  "billing.processedBy": "Zahlungen werden über RevenueCat (Stripe) abgewickelt.",
+  "billing.processedBy": "Zahlungen laufen über das 3m4-Zahlungsportal (Stripe).",
   "billing.entitlementsPrefix": "Entitlements",
   "billing.entitlementsSuffix": "werden automatisch deinem Tarif zugeordnet.",
-  "billing.notConfigured":
-    "Die Abrechnung ist noch nicht konfiguriert (VITE_REVENUECAT_PUBLIC_KEY fehlt). Füge deinen RevenueCat-Web-Billing-Public-Key in .env ein und baue das Web-Image neu.",
-  "billing.signInAgain": "Bitte melde dich erneut an, um zu upgraden.",
   "billing.openingCheckout": "Sicherer Checkout wird geöffnet…",
   "billing.activating": "Zahlung abgeschlossen. Dein Tarif wird aktiviert…",
   "billing.nowOnPlan": "Du nutzt jetzt den Tarif {plan}! 🎉",
@@ -329,5 +330,12 @@ const de: PartialCatalog = {
   "billing.cancelled": "Checkout abgebrochen.",
   "billing.checkoutFailed": "Checkout fehlgeschlagen: {msg}",
   "billing.unknownError": "unbekannter Fehler",
+  "billing.manage": "Abo verwalten",
+  "billing.manageHint": "Zahlungsmethode ändern, Rechnungen herunterladen oder im Kundenportal kündigen.",
+  "billing.donate": "Spendier mir einen Kaffee",
+  "billing.donateThanks": "Danke, dass du 3m4 unterstützt!",
+  "billing.notPurchasable": "Dieser Plan ist noch nicht käuflich. Melde dich, wenn du ihn brauchst.",
+  "billing.periodEnd": "Aktueller Zeitraum endet am {date}",
+  "billing.cancelsAtEnd": "Wird zum Ende des aktuellen Zeitraums gekündigt.",
 };
 export default de;

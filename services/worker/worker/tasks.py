@@ -3,15 +3,20 @@
 The headline task is `process_click`, which the redirect service enqueues for
 every link hit. It enforces the tracked-clicks limit, enriches the event, and
 writes the durable rows. See PROJECT_PLAN.md §3/§6 and CONTRACT.md.
+`reconcile_billing` is the daily pull from payments.3m4.net (CONTRACT.md "Billing").
 """
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import delete, select
 
+from dbcore.billing_sync import account_for_identity, apply_entitlements
+from dbcore.config import config
 from dbcore.db import session_scope
+from dbcore.m4pay import M4PayClient, M4PayError
 from dbcore.models import (
     Account,
     Click,
@@ -26,6 +31,8 @@ from dbcore.usage import get_or_create_counter
 
 from .app import celery
 from .enrich import geo_lookup, parse_user_agent, referrer_host
+
+log = logging.getLogger("3m4.worker")
 
 
 def _as_uuid(value) -> uuid.UUID:
@@ -182,18 +189,57 @@ def enforce_retention() -> None:
             )
 
 
+# --------------------------------------------------------------------------- #
+# Billing reconcile (pull from payments.3m4.net)
+# --------------------------------------------------------------------------- #
+# The push half is the signed webhook in services/api (POST /api/billing/webhook);
+# this pull is the backstop so a missed or late delivery cannot leave
+# `accounts.plan` stale for more than a day. The window overlaps the daily
+# schedule so a missed run is covered by the next one (snapshots are idempotent).
+RECONCILE_WINDOW = timedelta(days=2)
+
+
+def payments_client() -> M4PayClient | None:
+    """The service-key client, or None when billing / the key is not configured."""
+    if not config.billing_enabled or not config.payments_service_key:
+        return None
+    return M4PayClient(config.payments_internal_url, app=config.payments_app, service_key=config.payments_service_key)
+
+
 @celery.task(name="reconcile_billing")
-def reconcile_billing() -> None:
-    """Nightly billing reconciliation backstop.
+def reconcile_billing(updated_since: str | None = None, client: M4PayClient | None = None) -> dict:
+    """Daily billing reconciliation backstop (celery beat; `make reconcile-billing`
+    runs it once on demand).
 
-    STUB: only meaningful when billing is enabled. The real implementation will
-    pull subscription state from RevenueCat's REST API and repair any drift in
-    `subscriptions` / `accounts.plan` that webhooks missed.
-
-    # TODO(enrique): implement RevenueCat REST reconcile when BILLING_ENABLED.
-    #   - skip entirely if not config.billing_enabled
-    #   - for each account with a subscription, fetch current entitlements
-    #   - resolve plan via dbcore.plans.resolve_plan_from_entitlements
-    #   - update Subscription + Account.plan on mismatch
+    Pulls every subscription of the app changed since ``updated_since`` (ISO,
+    default: the last ``RECONCILE_WINDOW``) with ``M4PayClient.subscriptions``
+    and applies each snapshot through the same code path as the push webhook
+    (``dbcore.billing_sync.apply_entitlements``). Returns counts: ``applied``
+    (rows matched to a 3m4 account), ``changed`` (plan flips), ``unknown``
+    (identities that never signed in here), ``skipped`` (not configured) and
+    ``error`` (payments unreachable).
     """
-    return None
+    client = client or payments_client()
+    if client is None:
+        log.info("billing reconcile skipped: PAYMENTS_SERVICE_KEY not configured")
+        return {"skipped": 1}
+    since = updated_since or (datetime.now(timezone.utc) - RECONCILE_WINDOW).strftime("%Y-%m-%dT%H:%M:%SZ")
+    counts = {"applied": 0, "changed": 0, "unknown": 0}
+    try:
+        rows = list(client.subscriptions(updated_since=since))
+    except (M4PayError, OSError) as err:  # requests exceptions are OSError subclasses
+        log.warning("billing reconcile failed: %s", err)
+        return {"error": 1}
+    for row in rows:
+        with session_scope() as session:
+            account = account_for_identity(session, row.get("identity_id"))
+            if account is None:
+                counts["unknown"] += 1
+                continue
+            result = apply_entitlements(session, account, row)
+            counts["applied"] += 1
+            if result["plan"] != result["previous_plan"]:
+                counts["changed"] += 1
+                log.info("billing reconcile: account %s %s -> %s", account.id, result["previous_plan"], result["plan"])
+    log.info("billing reconcile since %s: %s", since, counts)
+    return counts

@@ -41,15 +41,18 @@ services:
     build: { context: .., dockerfile: services/api/Dockerfile }
     env_file: ../.env
     environment:
-      # The accounts api on the shared `edge` network (same name in prod).
+      # The accounts and payments apis on the shared `edge` network (same
+      # names in prod). payments also reaches THIS container over `edge` as
+      # `3m4-api-1:5000` to deliver its push webhooks.
       ACCOUNTS_INTERNAL_URL: ${ACCOUNTS_INTERNAL_URL:-http://accounts-api-1:5000}
+      PAYMENTS_INTERNAL_URL: ${PAYMENTS_INTERNAL_URL:-http://payments-api-1:5000}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
       migrate: { condition: service_completed_successfully }
     expose: ["5000"]
-    # `edge` is the external network shared with the accounts stack (and the
-    # sibling apps in production). `make up` creates it when missing.
+    # `edge` is the external network shared with the accounts and payments
+    # stacks (and the sibling apps in production). `make up` creates it when missing.
     networks: [default, edge]
     restart: unless-stopped
 
@@ -62,15 +65,20 @@ services:
     expose: ["5001"]
     restart: unless-stopped
 
+  # Click processing + scheduled maintenance, including the daily billing
+  # reconcile that pulls subscriptions from payments.3m4.net over `edge`.
   worker:
     build: { context: .., dockerfile: services/worker/Dockerfile }
     command: ["celery", "-A", "worker.app.celery", "worker", "--loglevel=info"]
     env_file: ../.env
+    environment:
+      PAYMENTS_INTERNAL_URL: ${PAYMENTS_INTERNAL_URL:-http://payments-api-1:5000}
     volumes:
       - ./geoip:/geoip:ro
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
+    networks: [default, edge]
     restart: unless-stopped
 
   beat:
@@ -93,7 +101,7 @@ services:
         VITE_SHORT_DOMAIN: ${VITE_SHORT_DOMAIN:-}
         VITE_POSTHOG_KEY: ${VITE_POSTHOG_KEY:-}
         VITE_POSTHOG_HOST: ${VITE_POSTHOG_HOST:-https://us.i.posthog.com}
-        VITE_REVENUECAT_PUBLIC_KEY: ${VITE_REVENUECAT_PUBLIC_KEY:-}
+        VITE_PAYMENTS_URL: ${VITE_PAYMENTS_URL:-${PAYMENTS_URL:-https://payments.3m4.net}}
         VITE_BILLING_ENABLED: ${VITE_BILLING_ENABLED:-true}
         VITE_INFO_URL: ${VITE_INFO_URL:-https://info.3m4.net}
         VITE_RETRO_PROJECT_KEY: ${VITE_RETRO_PROJECT_KEY:-}
@@ -107,7 +115,10 @@ services:
     environment:
       # SSR resolves feature flags straight from the API over the internal network.
       API_INTERNAL_URL: http://api:5000/api
+      # SSR fetches the public supporters list from the payments api over `edge`.
+      PAYMENTS_INTERNAL_URL: ${PAYMENTS_INTERNAL_URL:-http://payments-api-1:5000}
     expose: ["3000"]
+    networks: [default, edge]
     restart: unless-stopped
 
   # Remote MCP server (Streamable HTTP) for AI agents. Auth = 3m4 API key as

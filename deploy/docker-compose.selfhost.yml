@@ -1,6 +1,6 @@
 name: 3m4
 
-# Self-host overlay: NO billing (RevenueCat), NO beat-driven billing reconcile.
+# Self-host overlay: NO billing (no payments.3m4.net portal), NO beat-driven billing reconcile.
 # Usage:
 #   docker compose -f docker-compose.yml -f docker-compose.selfhost.yml up -d
 #
@@ -17,6 +17,6 @@ services:
     environment:
       VITE_BILLING_ENABLED: "false"
 
-  # The billing reconcile beat job is unnecessary without RevenueCat.
+  # The billing reconcile beat job is unnecessary without the payments portal.
   beat:
     profiles: ["disabled"]
