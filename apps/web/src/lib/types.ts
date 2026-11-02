@@ -47,6 +47,39 @@ export interface MeResponse {
   flags?: Record<string, boolean>;
 }
 
+/** `GET /api/billing/status`: the plan + the subscription mirrored from payments.3m4.net. */
+export interface BillingSubscription {
+  id: string | null;
+  entitlement: string | null;
+  product: string | null;
+  period: "monthly" | "annual" | null;
+  /** Stripe status as relayed by payments: active | trialing | past_due | canceled | ... */
+  status: string;
+  active: boolean;
+  current_period_end: string | null;
+  will_renew: boolean;
+  updated_at: string | null;
+}
+
+export interface BillingStatus {
+  plan: Account["plan"];
+  label: string;
+  subscription: BillingSubscription | null;
+  payments_url: string;
+  app: string;
+  price_keys: Partial<Record<Account["plan"], Record<string, string>>>;
+}
+
+/** One row of `GET {PAYMENTS_URL}/api/public/supporters?app=3m4`. */
+export interface Supporter {
+  display_name: string;
+  handle: string | null;
+  tier: "supporter" | "pro" | "team";
+  /** `YYYY-MM` */
+  since: string;
+  message: string | null;
+}
+
 export interface Link {
   id: string;
   short_code: string;

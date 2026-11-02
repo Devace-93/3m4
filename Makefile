@@ -6,7 +6,7 @@
 COMPOSE      := docker compose --env-file .env -f deploy/docker-compose.yml
 COMPOSE_SH   := docker compose --env-file .env -f deploy/docker-compose.yml -f deploy/docker-compose.selfhost.yml
 
-.PHONY: help up up-selfhost down build rebuild logs ps seed migrate shell-api shell-db clean e2e
+.PHONY: help up up-selfhost down build rebuild logs worker-logs ps seed migrate reconcile-billing shell-api shell-db clean e2e test
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -38,6 +38,15 @@ seed: ## Re-seed reserved slugs
 
 migrate: ## Run create-all + seed
 	$(COMPOSE) run --rm migrate python -m dbcore.cli upgrade-and-seed
+
+worker-logs: ## Tail the celery worker (clicks + the daily billing reconcile with payments.3m4.net)
+	$(COMPOSE) logs -f --tail=100 worker
+
+reconcile-billing: ## Pull the last 2 days of subscriptions from payments.3m4.net once (worker task, in-process)
+	$(COMPOSE) run --rm worker python -c "from worker.tasks import reconcile_billing; print('reconciled:', reconcile_billing())"
+
+test: ## Run the API pytest suite against disposable Postgres/Redis containers (no stack needed)
+	sh deploy/test.sh
 
 shell-api: ## Shell into the api container
 	$(COMPOSE) exec api sh

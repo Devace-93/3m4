@@ -8,7 +8,5 @@ const esES: PartialCatalog = {
     "Ahora mismo todas las cuentas tienen acceso completo sin coste. Los planes y límites se introducirán más adelante, con aviso antes de cualquier cambio.",
   "dash.limitReached": "Has alcanzado el límite mensual de enlaces de este plan.",
   "billing.annualSave": "(ahorra ~20 %)",
-  "billing.notConfigured":
-    "La facturación todavía no está configurada (falta VITE_REVENUECAT_PUBLIC_KEY). Añade tu clave pública de RevenueCat Web Billing a .env y vuelve a construir la imagen web.",
 };
 export default esES;

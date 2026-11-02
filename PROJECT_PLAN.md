@@ -15,7 +15,7 @@ Owner: Enrique Magallon Alvarez. License: **MIT** (open-source core, self-hostab
 | Backend | Python + Flask (REST JSON API) |
 | Database | PostgreSQL (source of truth, stateless app) |
 | Frontend | **Qwik (Qwik City)** — resumable, excellent SEO/perf for marketing + content pages |
-| Billing | RevenueCat Web Billing (Stripe underneath); entitlements `pro`, `team` |
+| Billing | The hosted portal payments.3m4.net (Stripe underneath); entitlements `pro`, `team` |
 | Product analytics | PostHog (frontend SDK + server-side `posthog-python`) |
 | Redirect status | **302 default**, per-link `301` override (accurate click analytics by default) |
 | Auth | **Shared identity service** `accounts.3m4.net` (own repo): EdDSA session cookie on `.3m4.net`, verified locally via JWKS; password, magic link, Google / GitHub / Microsoft / Discord, e-mail verification, avatars all live there. This app only mirrors identities (JIT provisioning). Replaced the roll-your-own JWT on 2026-10-16 |
@@ -62,7 +62,7 @@ Caddy (reverse proxy, auto-HTTPS, on-demand TLS for custom domains)
 
 - **redirect**: minimal deps; cache lookup (Redis→PG), push raw click event to queue, return redirect immediately. Reads per-link `redirect_type`.
 - **worker**: consumes click events → geo (GeoLite2) + UA parse + referrer host → batch insert `clicks`, bump `usage_counters`, update `click_daily_rollup`, prune by retention.
-- **api**: Flask blueprints `auth`, `links`, `analytics`, `domains`, `apikeys`, `billing`. `billing` is conditionally registered via `BILLING_ENABLED` so the self-host build omits RevenueCat entirely.
+- **api**: Flask blueprints `auth`, `links`, `analytics`, `domains`, `apikeys`, `billing`. `billing` is conditionally registered via `BILLING_ENABLED` so the self-host build omits the payments portal entirely.
 - **Stateless**: accounts session JWT verified with a cached JWKS; no local sessions/files. QR generated on demand or cached to object storage. Any instance serves any request.
 
 ### Repo layout (monorepo)
@@ -88,7 +88,7 @@ Account = billing entity; users join via memberships.
 - **accounts** — id, name, plan (`free|pro|team|enterprise`), created_at
 - **users** — id, identity_id (accounts `sub`), email, handle, name, avatar_url, email_verified_at, created_at, updated_at (mirror of the accounts identity; no password)
 - **memberships** — account_id, user_id, role (`owner|admin|member`)
-- **subscriptions** — account_id, rc_app_user_id, entitlement (`pro|team`), product_id, period (`monthly|annual`), status, current_period_start/end, will_renew, raw_payload
+- **subscriptions** — account_id, stripe_subscription_id, entitlement (`pro|team`), product_id, period (`monthly|annual`), status, current_period_start/end, will_renew, raw_payload
 - **links** — id, account_id, domain_id (NULL=apex), short_code, destination_url, redirect_type (`301|302`), title, created_by, created_at, expires_at, active — `UNIQUE(domain_id, short_code)`
 - **domains** — id, account_id, hostname, verification_token, verified_at, tls_status
 - **clicks** — id, link_id, account_id, ts, ip_hash, country, region, city, device, os, browser, referrer_host, raw_ua — **time-partitioned (monthly)**. NO raw IP.
@@ -122,17 +122,17 @@ Special reserved redirect (stored in seed file):
 | Enterprise | custom | custom | custom | custom | custom | SSO, SLA |
 | Self-host | unlimited/config | config | config | config | config | full (no billing) |
 
-Enforcement = entitlement (from RevenueCat) → plan → limit map (config) + `usage_counters`.
+Enforcement = entitlement (from payments.3m4.net) → plan → limit map (config) + `usage_counters`.
 
 ---
 
-## 7. RevenueCat integration
+## 7. payments.3m4.net integration
 
-- App user ID = **account_id**.
-- Entitlements `pro`, `team`; offerings `pro` & `team`, each w/ monthly + annual packages.
-- Frontend: RC Web SDK → checkout / paywall.
-- Backend: `/billing/webhook` verifies RC `Authorization` token, dedupes on `event_id`, handles `INITIAL_PURCHASE, RENEWAL, CANCELLATION, EXPIRATION, PRODUCT_CHANGE, BILLING_ISSUE` → updates `subscriptions` + `accounts.plan`. Nightly REST reconcile as backstop.
-- **Self-host**: `BILLING_ENABLED=false` → billing blueprint not loaded; RC SDK absent; limits from config.
+- Identity = the accounts `sub` (payments and 3m4 share accounts.3m4.net); the account is resolved from it.
+- Entitlements `pro`, `team`; products `pro_monthly` / `pro_annual` (`team` not purchasable yet).
+- Frontend: `lib/pay.ts` opens the portal's hosted `/subscribe` (popup), Customer Portal and donate pages; `/sponsors` lists the portal's public supporters.
+- Backend: `/billing/webhook` verifies the `X-M4Pay-Signature` HMAC, dedupes on the event `id`, applies the full entitlement snapshot → updates `subscriptions` + `accounts.plan`. Daily `reconcile_billing` worker task (service key) as backstop. See CONTRACT.md "Billing".
+- **Self-host**: `BILLING_ENABLED=false` → billing blueprint not loaded; the portal is never contacted; limits from config.
 
 ## 8. PostHog integration
 
@@ -162,7 +162,7 @@ Enforcement = entitlement (from RevenueCat) → plan → limit map (config) + `u
 **Phases:**
 1. **Core (MVP)** — auth, links, redirect, basic click count, dashboard list, reserved-slug blocklist, single-VPS Docker + Caddy, landing page, `/resume` redirect, MIT license.
 2. **Analytics & API** — worker enrichment (geo/device/referrer), rollups + retention, QR codes, public API + API keys + rate limiting.
-3. **Billing** — RevenueCat entitlements/offerings, usage metering + enforcement, PostHog funnels, `/sponsors`.
+3. **Billing** — payments.3m4.net entitlements (webhook + reconcile), usage metering + enforcement, PostHog funnels, `/sponsors`.
 4. **Teams & custom domains** — memberships/roles, org billing, Caddy on-demand TLS domain flow.
 5. **Enterprise & scale** — SSO/SAML, SLA, LB + replicas, ClickHouse if needed.
 
@@ -196,6 +196,6 @@ Implemented and verified via `docker compose build` + live smoke test:
 - `analytics.summary.uniques` returns null (privacy model keeps only coarse counts).
 - `/info/pricing` issues a trailing-slash 301 (Qwik City normalization; harmless).
 - `short_url` uses `https://{SHORT_DOMAIN}` — set `SHORT_DOMAIN`/`APP_BASE_URL` for prod.
-- RevenueCat checkout + PostHog need real keys; both no-op safely until configured.
+- payments.3m4.net (service key + webhook secret) + PostHog need real keys; both no-op safely until configured.
 - Email (verification/reset) still stubbed.
 - `clicks` table not yet partitioned (planned migration).

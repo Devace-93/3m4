@@ -25,6 +25,8 @@ export const ENTITLEMENT_TO_PLAN = planLimits.entitlement_to_plan as Record<
   string,
   string
 >;
+/** Product keys at payments.3m4.net per plan and period; plans without one are not purchasable. */
+export const PRICE_KEYS = planLimits.price_keys as Partial<Record<PlanKey, { monthly: string; annual: string }>>;
 
 import { translate, type I18nState } from "../i18n";
 

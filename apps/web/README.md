@@ -36,7 +36,7 @@ bun run serve        # starts the SSR server on 0.0.0.0:3000
 | `VITE_SHORT_DOMAIN` | – | Display domain for short links. |
 | `VITE_POSTHOG_KEY` | – | PostHog project key. Unset → analytics no-ops. |
 | `VITE_POSTHOG_HOST` | `https://us.i.posthog.com` | PostHog host. |
-| `VITE_REVENUECAT_PUBLIC_KEY` | – | RevenueCat Web SDK key (checkout TODO). |
+| `VITE_PAYMENTS_URL` | `https://payments.3m4.net` | Payments portal: Upgrade / Manage / Donate open its hosted pages, `pay.js` is loaded from it. |
 | `VITE_BILLING_ENABLED` | `true` | Set `false` for self-host → hides purchase UI. |
 
 > `VITE_*` vars are inlined at **build time**. For hosted builds, pass them as
@@ -82,7 +82,10 @@ src/
 - **Auth guard**: tokens live only in the browser, so `/dashboard/*` is guarded
   client-side in `routes/(dashboard)/layout.tsx` (sends signed-out visitors to the accounts login page, back here afterwards).
 - **Adapter**: `@builder.io/qwik-city/adapters/node-server` → `server/entry.node-server.js`.
-- **Billing**: `dashboard/billing` has a `TODO(billing)` where the RevenueCat Web
-  SDK checkout goes (`app_user_id = account id`, entitlements `pro`/`team`).
+- **Billing**: `dashboard/billing` opens the payments.3m4.net portal
+  (`lib/pay.ts` → hosted `/subscribe` popup, Customer Portal, donate); the
+  backend flips the plan when the portal's signed webhook lands (entitlements
+  `pro`/`team`). `/sponsors` lists the portal's public supporters (SSR via
+  `PAYMENTS_INTERNAL_URL`, compose: `http://payments-api-1:5000`).
 - Open source · MIT.
 ```

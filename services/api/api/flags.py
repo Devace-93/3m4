@@ -4,7 +4,7 @@
 requester. Backend enforcement is the source of truth — the frontend only
 mirrors these flags (delivered via ``/auth/me`` and ``GET /api/flags``).
 
-Never gate: the redirect service, the RevenueCat webhook, or login.
+Never gate: the redirect service, the payments.3m4.net webhook, or login.
 """
 from __future__ import annotations
 

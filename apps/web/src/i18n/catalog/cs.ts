@@ -176,13 +176,17 @@ const cs: PartialCatalog = {
   "sponsors.emptyBody": "Každý předplatitel Pro / Supporter tu získá místo a vložitelný odznak.",
   "sponsors.emptyBodyEarly":
     "Předplatné Supporter se otevře spolu s placenými tarify, po předběžném přístupu. Do té doby je každý účet zdarma.",
-  "sponsors.tierSupporter": "Podporovatel {tier}",
   "sponsors.badgeTitle": "Odznak podporovatele",
   "sponsors.badgeBody": "Podporovatelé Pro získají vložitelný odznak pro svůj web nebo README:",
   "sponsors.badgeBodyEarly": "Podporovatelé Pro získají vložitelný odznak pro svůj web nebo README:",
   "sponsors.badgeLabel": "3m4 Supporter",
   "sponsors.readPlans": "Přečtěte si o chystaných tarifech",
   "sponsors.become": "Staňte se podporovatelem",
+  "sponsors.tierPro": "Podporovatel Pro",
+  "sponsors.tierTeam": "Podporovatel Team",
+  "sponsors.tierDonor": "Podporovatel",
+  "sponsors.since": "od {date}",
+  "sponsors.donateIntro": "Raději jednorázově? Kupte mi kávu – dárci, kteří souhlasí, se zde objeví také.",
 
   // Projects
   "projects.title": "Projekty",
@@ -316,12 +320,9 @@ const cs: PartialCatalog = {
   "billing.currentPlan": "Aktuální tarif",
   "billing.processing": "Zpracování…",
   "billing.upgradeTo": "Přejít na {plan}",
-  "billing.processedBy": "Platby zpracovává RevenueCat (Stripe).",
+  "billing.processedBy": "Platby zpracovává platební portál 3m4 (Stripe).",
   "billing.entitlementsPrefix": "Oprávnění",
   "billing.entitlementsSuffix": "se automaticky mapují na váš tarif.",
-  "billing.notConfigured":
-    "Platby zatím nejsou nakonfigurované (chybí VITE_REVENUECAT_PUBLIC_KEY). Přidejte veřejný klíč RevenueCat Web Billing do .env a znovu sestavte web image.",
-  "billing.signInAgain": "Pro vylepšení tarifu se prosím znovu přihlaste.",
   "billing.openingCheckout": "Otevírání zabezpečené platby…",
   "billing.activating": "Platba dokončena — aktivujeme váš tarif…",
   "billing.nowOnPlan": "Nyní máte tarif {plan}! 🎉",
@@ -329,5 +330,12 @@ const cs: PartialCatalog = {
   "billing.cancelled": "Platba zrušena.",
   "billing.checkoutFailed": "Platba se nezdařila: {msg}",
   "billing.unknownError": "neznámá chyba",
+  "billing.manage": "Spravovat předplatné",
+  "billing.manageHint": "Změňte platební metodu, stáhněte faktury nebo zrušte předplatné v zákaznickém portálu.",
+  "billing.donate": "Kupte mi kávu",
+  "billing.donateThanks": "Díky za podporu 3m4!",
+  "billing.notPurchasable": "Tento plán zatím nelze koupit. Ozvěte se, pokud ho potřebujete.",
+  "billing.periodEnd": "Aktuální období končí {date}",
+  "billing.cancelsAtEnd": "Zruší se na konci aktuálního období.",
 };
 export default cs;

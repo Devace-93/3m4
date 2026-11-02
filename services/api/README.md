@@ -1,7 +1,7 @@
 # 3m4 — API service (Flask)
 
 JSON REST API for the 3m4 URL shortener. Auth, links, analytics, account usage,
-API keys, and (optionally) RevenueCat billing. Mounted at `/api` behind Caddy.
+API keys, and (optionally) billing through the payments.3m4.net portal. Mounted at `/api` behind Caddy.
 
 ## Layout
 
@@ -36,7 +36,7 @@ lives in the repo-root `dbcore/` package and is imported, never re-implemented.
 - `links`: list/create/get/patch/delete, `:id/qr.png`, `:id/analytics`
 - `account/usage`, `analytics/overview`
 - `apikeys`: list/create/delete
-- `billing` (only if `BILLING_ENABLED=true`): `offerings`, `webhook`
+- `billing` (only if `BILLING_ENABLED=true`): `status` (session), `webhook` (signed push events from payments.3m4.net; never gated)
 - `healthz` (also at the bare path for container health checks)
 
 ## Run
