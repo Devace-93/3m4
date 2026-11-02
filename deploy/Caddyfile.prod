@@ -162,6 +162,35 @@ accounts.3m4.net {
 	}
 }
 
+# payments (donations, subscriptions, supporter badges for every 3m4 app):
+# /opt/payments, compose project `payments`. /badge/* is embedded in READMEs
+# (served by the API at the host root) and /pay.js is the drop-in button
+# embedded by the other sites, so both are cacheable and CORS-open. Stripe
+# posts webhooks to /api/stripe/webhook; credentialed CORS for /api/* is
+# handled by the API itself (ALLOWED_ORIGINS).
+payments.3m4.net {
+	handle /api/* {
+		reverse_proxy payments-api-1:5000
+	}
+	@apiRoot path /badge/* /healthz
+	handle @apiRoot {
+		reverse_proxy payments-api-1:5000
+	}
+	@widget path /pay.js
+	handle @widget {
+		header {
+			Cache-Control "public, max-age=300"
+			Access-Control-Allow-Origin "*"
+			# defer: replace the upstream Cache-Control instead of adding a second one
+			defer
+		}
+		reverse_proxy payments-web-1:3000
+	}
+	handle {
+		reverse_proxy payments-web-1:3000
+	}
+}
+
 # ── Static side apps ──────────────────────────────────────────────────────────
 # Uncomment per app once its files are rsynced to /srv/static/<app> on the host
 # and the /srv/static volume mount is enabled in docker-compose.prod.yml.
