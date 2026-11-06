@@ -9,7 +9,17 @@
 	# }
 }
 
+# Addresses refused at the edge, before any app sees them. ufw alone does
+# not cover this: Docker publishes 80/443 through its own iptables chains,
+# which bypass ufw's INPUT rules. Caddy is the first hop, so remote_ip is
+# the real client. Add one address or CIDR per line, then recreate caddy.
+(blocklist) {
+	@blocked remote_ip 76.135.135.39 # prober, 2026-11-05/06 (see Smart Docs incident report)
+	abort @blocked
+}
+
 3m4.net {
+	import blocklist
 	# --- API ---
 	handle /api/* {
 		reverse_proxy api:5000
@@ -34,10 +44,12 @@
 }
 
 www.3m4.net {
+	import blocklist
 	redir https://3m4.net{uri} permanent
 }
 
 app.3m4.net {
+	import blocklist
 	# Dashboard calls the API same-origin (VITE_API_URL=/api).
 	handle /api/* {
 		reverse_proxy api:5000
@@ -56,6 +68,7 @@ app.3m4.net {
 # exp (feature flags): /opt/exp, deployed without its own Caddy. Container
 # names are stable (compose project `exp`, one replica each).
 exp.3m4.net {
+	import blocklist
 	handle /api/* {
 		reverse_proxy exp-api-1:5000
 	}
@@ -70,6 +83,7 @@ exp.3m4.net {
 # retro (user feedback): /opt/retro, same pattern. /widget.js is embedded by
 # third-party sites, so it is served cacheable and CORS-open.
 retro.3m4.net {
+	import blocklist
 	handle /api/* {
 		reverse_proxy retro-api-1:5000
 	}
@@ -90,6 +104,7 @@ retro.3m4.net {
 # metrics (web analytics): /opt/metrics, same pattern. /m.js is embedded by
 # third-party sites, so it is served cacheable and CORS-open.
 metrics.3m4.net {
+	import blocklist
 	handle /api/* {
 		reverse_proxy metrics-api-1:5000
 	}
@@ -110,6 +125,7 @@ metrics.3m4.net {
 # oops (error tracking): /opt/oops, same pattern. /o.js is the browser SDK
 # embedded by third-party apps, so it is served cacheable and CORS-open.
 oops.3m4.net {
+	import blocklist
 	handle /api/* {
 		reverse_proxy oops-api-1:5000
 	}
@@ -130,6 +146,7 @@ oops.3m4.net {
 # smart-docs (knowledge base): /opt/smart-docs, compose project `smart-docs`.
 # One FastAPI container serves the API, the editor, /mcp and the public pages.
 smart-docs.3m4.net {
+	import blocklist
 	encode gzip
 	reverse_proxy smart-docs-api-1:8000
 }
@@ -140,6 +157,7 @@ smart-docs.3m4.net {
 # CORS-open. Credentialed CORS for /api/* is handled by the API itself
 # (ALLOWED_ORIGINS), not here.
 accounts.3m4.net {
+	import blocklist
 	handle /api/* {
 		reverse_proxy accounts-api-1:5000
 	}
@@ -169,6 +187,7 @@ accounts.3m4.net {
 # posts webhooks to /api/stripe/webhook; credentialed CORS for /api/* is
 # handled by the API itself (ALLOWED_ORIGINS).
 payments.3m4.net {
+	import blocklist
 	handle /api/* {
 		reverse_proxy payments-api-1:5000
 	}
@@ -216,6 +235,7 @@ payments.3m4.net {
 # answers REST, the WebSocket (/ws) and the browser build (/play/, a 6.7 MB wasm
 # that compresses to about a third, hence encode).
 wars.3m4.net {
+	import blocklist
 	encode zstd gzip
 	handle {
 		reverse_proxy wars-server-1:8086
