@@ -3,6 +3,9 @@
 
 {
 	email dev.ace.93.03@gmail.com
+	# `abort` sorts after `handle` by default, so the (blocklist) snippet never
+	# ran on any site whose routes live in handle blocks. Run it first.
+	order abort first
 	# On-demand TLS for customer custom domains (Phase 4):
 	# on_demand_tls {
 	# 	ask http://api:5000/api/domains/verify-tls
