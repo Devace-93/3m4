@@ -53,7 +53,13 @@ services:
     expose: ["5000"]
     # `edge` is the external network shared with the accounts and payments
     # stacks (and the sibling apps in production). `make up` creates it when missing.
-    networks: [default, edge]
+    # `3m4-api` is this stack's own name for the API. The bare service name `api`
+    # is also registered on the shared `edge` network by every sibling app, so
+    # resolving it there can return another app's API.
+    networks:
+      default:
+        aliases: [3m4-api]
+      edge: {}
     restart: unless-stopped
 
   redirect:
@@ -114,7 +120,7 @@ services:
     env_file: ../.env
     environment:
       # SSR resolves feature flags straight from the API over the internal network.
-      API_INTERNAL_URL: http://api:5000/api
+      API_INTERNAL_URL: http://3m4-api:5000/api
       # SSR fetches the public supporters list from the payments api over `edge`.
       PAYMENTS_INTERNAL_URL: ${PAYMENTS_INTERNAL_URL:-http://payments-api-1:5000}
     expose: ["3000"]
@@ -126,7 +132,7 @@ services:
   mcp:
     build: { context: .., dockerfile: packages/mcp-server/Dockerfile }
     environment:
-      M4_API_URL: http://api:5000/api
+      M4_API_URL: http://3m4-api:5000/api
       M4_MCP_PORT: "3333"
       M4_AUDIT_LOG: stderr
     depends_on:
