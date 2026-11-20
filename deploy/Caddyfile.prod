@@ -21,8 +21,40 @@
 	abort @blocked
 }
 
+# Access log for every site, kept on the caddydata volume so it survives a
+# container recreation (docker logs do not). Without it, blocked requests and
+# probing leave no trace. Request and response headers are dropped (they can
+# carry API keys) and secret query parameters are redacted; the user agent is
+# logged on its own. Rotated: 20 MiB per file, 10 files, 90 days.
+(accesslog) {
+	log_append ua {header.User-Agent}
+	log {
+		output file /data/logs/access.log {
+			roll_size 20MiB
+			roll_keep 10
+			roll_keep_for 90d
+		}
+		format filter {
+			request>headers delete
+			request>tls delete
+			resp_headers delete
+			request>uri query {
+				replace token REDACTED
+				replace code REDACTED
+				replace key REDACTED
+				replace api_key REDACTED
+				replace access_token REDACTED
+				replace secret REDACTED
+				replace password REDACTED
+			}
+			wrap json
+		}
+	}
+}
+
 3m4.net {
 	import blocklist
+	import accesslog
 	# --- API ---
 	handle /api/* {
 		reverse_proxy api:5000
@@ -48,11 +80,13 @@
 
 www.3m4.net {
 	import blocklist
+	import accesslog
 	redir https://3m4.net{uri} permanent
 }
 
 app.3m4.net {
 	import blocklist
+	import accesslog
 	# Dashboard calls the API same-origin (VITE_API_URL=/api).
 	handle /api/* {
 		reverse_proxy api:5000
@@ -72,6 +106,7 @@ app.3m4.net {
 # names are stable (compose project `exp`, one replica each).
 exp.3m4.net {
 	import blocklist
+	import accesslog
 	handle /api/* {
 		reverse_proxy exp-api-1:5000
 	}
@@ -87,6 +122,7 @@ exp.3m4.net {
 # third-party sites, so it is served cacheable and CORS-open.
 retro.3m4.net {
 	import blocklist
+	import accesslog
 	handle /api/* {
 		reverse_proxy retro-api-1:5000
 	}
@@ -108,6 +144,7 @@ retro.3m4.net {
 # third-party sites, so it is served cacheable and CORS-open.
 metrics.3m4.net {
 	import blocklist
+	import accesslog
 	handle /api/* {
 		reverse_proxy metrics-api-1:5000
 	}
@@ -129,6 +166,7 @@ metrics.3m4.net {
 # embedded by third-party apps, so it is served cacheable and CORS-open.
 oops.3m4.net {
 	import blocklist
+	import accesslog
 	handle /api/* {
 		reverse_proxy oops-api-1:5000
 	}
@@ -150,6 +188,7 @@ oops.3m4.net {
 # One FastAPI container serves the API, the editor, /mcp and the public pages.
 smart-docs.3m4.net {
 	import blocklist
+	import accesslog
 	encode gzip
 	reverse_proxy smart-docs-api-1:8000
 }
@@ -161,6 +200,7 @@ smart-docs.3m4.net {
 # (ALLOWED_ORIGINS), not here.
 accounts.3m4.net {
 	import blocklist
+	import accesslog
 	handle /api/* {
 		reverse_proxy accounts-api-1:5000
 	}
@@ -191,6 +231,7 @@ accounts.3m4.net {
 # handled by the API itself (ALLOWED_ORIGINS).
 payments.3m4.net {
 	import blocklist
+	import accesslog
 	handle /api/* {
 		reverse_proxy payments-api-1:5000
 	}
@@ -239,6 +280,7 @@ payments.3m4.net {
 # that compresses to about a third, hence encode).
 wars.3m4.net {
 	import blocklist
+	import accesslog
 	encode zstd gzip
 	handle {
 		reverse_proxy wars-server-1:8086
